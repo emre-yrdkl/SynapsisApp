@@ -9,8 +9,10 @@ import Home from './Home';
 import Profile from './Profile';
 import FriendList from './FriendList';
 import DirectMessage from './DirectMess';
+import Place from './Place';
 import { AntDesign } from '@expo/vector-icons';
 import { FontAwesome5 } from '@expo/vector-icons';
+import { useAuth } from '../authContext/AuthContext';
 
 const AlertDialog = (title,message) =>
 Alert.alert(title, message, [
@@ -20,10 +22,18 @@ Alert.alert(title, message, [
 export default function Dashboard(){
 
     const Tabs = createBottomTabNavigator()
+    const { user, socket, receiveMessage, setCheckInPlace, checkInPlace } = useAuth();
+
 
     return(
       <Tabs.Navigator>
-        <Tabs.Screen name="Home" component={Home} options={{title:"Home", tabBarShowLabel: false, headerShown:false, tabBarIcon: (props) => <Ionicon name = "home-outline" size={25} {...props}/>}}/>
+        {
+          checkInPlace ?
+          <Tabs.Screen name="place" component={Place} options={{title:"place", tabBarShowLabel: false, headerShown:false, tabBarIcon: (props) => <Ionicon name = "log-out" size={25} {...props}/>}}/>
+          :
+          <Tabs.Screen name="Home" component={Home} options={{title:"Home", tabBarShowLabel: false, headerShown:false, tabBarIcon: (props) => <Ionicon name = "home-outline" size={25} {...props}/>}}/>
+
+        }
         <Tabs.Screen name="ProfileStack" component={Profile} options={{title:"Profile", tabBarShowLabel: false, headerShown:false, tabBarIcon: (props) => <Ionicon name = "person" {...props}/>}}/>
         <Tabs.Screen name="FriendListStack" component={FriendList} options={{title:"FriendList", tabBarShowLabel: false, headerShown:false, tabBarIcon: (props) => <FontAwesome5 name = "user-friends" {...props}/>}}/>
         <Tabs.Screen name="DirectMessageStack" component={DirectMessage} options={{title:"DirectMessage", tabBarShowLabel: false, headerShown:false, tabBarIcon: (props) => <AntDesign  name = "message1" size={25} {...props}/>}}/>

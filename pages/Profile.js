@@ -1,8 +1,9 @@
 import { StyleSheet, Text, View, TextInput, TouchableOpacity, ScrollView, Alert } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import {useState,useEffect} from 'react';
+import { useAuth } from '../authContext/AuthContext';
+import Notification from '../items/Notification';
 
-console.log("zaaaaaaaaaaaaaaaaaaaaaaaaaaa")
 
 const AlertDialog = (title,message) =>
 Alert.alert(title, message, [
@@ -10,9 +11,12 @@ Alert.alert(title, message, [
 ]);
 
 export default function Profile(){
+
+    const { user, socket, receiveMessage } = useAuth();
     const [name,setName] = useState("")
     const [email,setEmail] = useState("")
-
+    const [key, setKey] = useState(0); // Add a key state
+    
     async function getUserInfo() {
 		const res = await fetch('http://localhost:1338/api/quote', {
 			headers: {
@@ -29,6 +33,17 @@ export default function Profile(){
 			AlertDialog("Error",data.error)
 		}
 	}
+
+    useEffect(()=>{
+        console.log("receiveMessage",receiveMessage)
+        showNotification()
+    },[receiveMessage])
+
+    const showNotification = () => {
+    // Update the message with a unique key every time
+    setKey(prevKey => prevKey + 1); // Increment key to force re-render
+    };
+    
 
     useEffect(()=>{
         getUserInfo()
@@ -54,7 +69,7 @@ export default function Profile(){
                 </View>
 
             </View>
-
+            <Notification key={key} message={receiveMessage} />
         </View>
     )    
 }

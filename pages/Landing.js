@@ -3,32 +3,71 @@ import { MaterialCommunityIcons } from '@expo/vector-icons';
 import LogoSvg from '../svg/logo';
 import NameSvg from '../svg/nameLanding';
 import BackgroundLogoSvg from '../svg/backgroundLogo';
+import * as Location from 'expo-location';
+import { horizontalScale, moderateScale, verticalScale, width, height } from '../themes/Metrics';
+import BackgroundLogoSvgSmall from '../svg/backgroundLogoSvgSmall';
+import { useEffect } from 'react';
+import { useAuth } from '../authContext/AuthContext';
+
 export default function Landing({navigation}) {
+
+  const { setLocation } = useAuth();
+
+  useEffect( ()=>{
+    async function getLocation(){
+      console.log("sa")
+      let { status } = await Location.requestForegroundPermissionsAsync();
+      if (status !== 'granted') {
+          Alert.alert('Error', 'Permission to access location was denied.');
+      }
+      const locationInfo = await Location.getCurrentPositionAsync({})
+      console.log("locationInfo",locationInfo)
+      setLocation(locationInfo.coords.latitude, locationInfo.coords.longitude)
+      
+      
+    }
+    getLocation() 
+
+    console.log("width",width, "height",height)
+  },[])
     //navigation.replace("SignUp")
     //https://react-svgr.com/playground/?native=true
     return (
         <View style={styles.container} >
-
-        <View style={styles.backgroundSvgContainer}>
+        {
+          height > 700 ? 
+          <>
+          <View style={styles.backgroundSvgContainer}>
             <BackgroundLogoSvg />  
-        </View>
-        
-        <View style={styles.logoContainer}>
+          </View>
+          <View style={styles.logoContainerTall}>
             <LogoSvg style={styles.svg} />
-        </View>
+          </View>
+          </>
+
+        :
+        <>
+          <View style={styles.backgroundSvgContainer}>
+            <BackgroundLogoSvgSmall />  
+          </View>
+          <View style={styles.logoContainerShort}>
+            <LogoSvg style={styles.svg} />
+          </View>
+        </>
+        }
 
         <View style={styles.nameContainer}>
             <NameSvg style={styles.svg} />
         </View>
 
         <View style={styles.buttonsContainer}>
-            <TouchableOpacity style={styles.loginContainer} onPress={()=>navigation.replace("Sign")}>
+            <TouchableOpacity style={styles.loginContainer} onPress={()=>navigation.navigate("Sign")}>
                 <Text style={styles.loginText}>
                     Log in
                 </Text>
             </TouchableOpacity>
 
-            <TouchableOpacity style={styles.registerContainer} onPress={()=>navigation.replace("SignUp")}>
+            <TouchableOpacity style={styles.registerContainer} onPress={()=>navigation.navigate("SignUp")}>
                 <Text style={styles.registerText}>
                     Register
                 </Text>
@@ -48,21 +87,28 @@ const styles = StyleSheet.create({
         flex: 1, 
         
     },
-    logoContainer:{
+    logoContainerTall:{
         alignSelf: 'center',
-        marginTop:80
+        marginTop: verticalScale(50),
+        zIndex:2
     },
+    logoContainerShort:{
+      alignSelf: 'center',
+      marginTop: verticalScale(30),
+      zIndex:2
+  },
     svg:{
         marginHorizontal:"auto",
     },
 
     nameContainer:{
         alignSelf: 'center',
-        marginTop:28
+        marginTop:verticalScale(20)
     },
     backgroundSvgContainer: {
         position: 'absolute',
-        bottom:0
+        bottom:0,
+        zIndex:-1
     },
     loginContainer:{
         alignSelf: 'center',
@@ -70,10 +116,8 @@ const styles = StyleSheet.create({
         borderWidth: 3,
         borderColor: '#FF9F1C',
         backgroundColor: '#F5F5F5',
-        width: 300,
+        width: horizontalScale(250),
         height: 51,
-        paddingVertical: 9,
-        paddingHorizontal: 98,
         justifyContent: 'center',
         alignItems: 'center',
         marginBottom:26
@@ -92,10 +136,8 @@ const styles = StyleSheet.create({
         borderWidth: 3,
         borderColor: '#F5F5F5',
         backgroundColor: '#FF9F1C',
-        width: 300,
+        width: horizontalScale(250),
         height: 51,
-        paddingVertical: 9,
-        paddingHorizontal: 98,
         justifyContent: 'center',
         alignItems: 'center',
     },
@@ -108,7 +150,7 @@ const styles = StyleSheet.create({
         fontWeight: '400',
     },
     buttonsContainer:{
-        marginTop: 243
+        marginTop: verticalScale(150)
     },
     
   passwordView:{

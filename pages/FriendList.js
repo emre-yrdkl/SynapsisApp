@@ -1,7 +1,8 @@
 import { StyleSheet, Text, View, TextInput, TouchableOpacity, ScrollView, Alert } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import {useState,useEffect} from 'react';
-
+import { useAuth } from '../authContext/AuthContext';
+import Notification from '../items/Notification';
 
 const AlertDialog = (title,message) =>
 Alert.alert(title, message, [
@@ -9,8 +10,11 @@ Alert.alert(title, message, [
 ]);
 
 export default function FriendList(){
+
+    const { user, socket, receiveMessage } = useAuth();
     const [name,setName] = useState("")
     const [email,setEmail] = useState("")
+    const [key, setKey] = useState(0); // Add a key state
 
     async function getAllUsers() {
 		const res = await fetch('http://localhost:1338/api/getUsers')
@@ -28,6 +32,16 @@ export default function FriendList(){
         getAllUsers()
     },[])
 
+    useEffect(()=>{
+        console.log("receiveMessage",receiveMessage)
+        showNotification()
+    },[receiveMessage])
+
+    const showNotification = () => {
+    // Update the message with a unique key every time
+    setKey(prevKey => prevKey + 1); // Increment key to force re-render
+    };
+
     return(
         <View style={styles.container}>
             <View style={styles.titleContainer}>
@@ -35,6 +49,7 @@ export default function FriendList(){
                     Friend List
                 </Text>
             </View>
+            <Notification key={key} message={receiveMessage} />
 
         </View>
     )    

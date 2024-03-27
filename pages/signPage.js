@@ -6,6 +6,8 @@ import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { useAuth } from '../authContext/AuthContext';
 import LogoSvg from '../svg/logo';
 
+import { horizontalScale, moderateScale, verticalScale, width, height } from '../themes/Metrics';
+
 const AlertDialog = (title,message) =>
 Alert.alert(title, message, [
   {text: 'OK', onPress: () => console.log('OK Pressed')},
@@ -49,7 +51,6 @@ export default function Sign({navigation}) {
         if(res.status == 200){
           const result = await res.json()
           signIn(result.userToken, result.userInfo);
-          AlertDialog("Sucess","successfully logged in")
           navigation.replace("Dashboard")
         }
         else{
@@ -90,10 +91,19 @@ export default function Sign({navigation}) {
                 /> 
         </TouchableOpacity>
       
+      {
+          height > 700 ? 
+          
+          <View style={styles.logoContainerTall}>
+            <LogoSvg style={styles.svg} />
+          </View>
+
+        :
         
-      <View style={styles.logoContainer}>
-          <LogoSvg style={styles.svg} />
-      </View>
+          <View style={styles.logoContainerShort}>
+            <LogoSvg style={styles.svg} />
+          </View>
+        }
 
 
       <View style={styles.inputContainer}>
@@ -137,10 +147,16 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
   },
-  logoContainer:{
+  logoContainerTall:{
     alignSelf: 'center',
-    marginTop:80
-  },
+    marginTop: verticalScale(50),
+    zIndex:2
+},
+logoContainerShort:{
+  alignSelf: 'center',
+  marginTop: verticalScale(30),
+  zIndex:2
+},
   svg:{
     marginHorizontal:"auto",
   },
@@ -157,18 +173,16 @@ const styles = StyleSheet.create({
     fontSize: 40,
     fontStyle: 'normal',
     fontWeight: '400',
-    lineHeight: 24,
-    letterSpacing: 0.2,
   },
   inputContainer:{
-    marginTop:50,
+    marginTop:verticalScale(50),
     alignItems: 'center'
   },
   input:{
     display: 'flex',
     flexDirection: 'row',
-    width: 300,
-    height: 48,
+    width: horizontalScale(280),
+    height: verticalScale(55),
     padding: 8,
     paddingHorizontal: 12,
     paddingVertical: 10,
@@ -177,20 +191,17 @@ const styles = StyleSheet.create({
     borderRadius: 10,
     borderWidth: 1,
     borderColor: '#FF9F1C',
-    outlineStyle: 'none'
   },
   inputPass: { 
     flex: 1, 
     paddingRight: 10,
     paddingVertical: 7, 
-    outlineStyle: 'none'
     
   }, 
   button:{
     display: 'flex',
-    width: 280,
-    height: 51,
-    padding: '9px 87px 9px 88px',
+    width: horizontalScale(200),
+    height: verticalScale(55),
     justifyContent: 'center',
     alignItems: 'center',
     flexShrink: 0,

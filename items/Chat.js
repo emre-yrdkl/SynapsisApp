@@ -2,8 +2,11 @@ import React, { useEffect, useState, useRef } from "react";
 import { View, Text, TextInput, ScrollView, StyleSheet, TouchableOpacity } from "react-native";
 import { useRoute } from '@react-navigation/native';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
+import { useAuth } from '../authContext/AuthContext';
+
 
 function Chat({navigation}) {
+  const { user, socket, receiveMessage } = useAuth();
   const [currentMessage, setCurrentMessage] = useState("");
   const [messageList, setMessageList] = useState([]);
   const [dmId, setDmId] = useState("")
@@ -11,8 +14,17 @@ function Chat({navigation}) {
   const route = useRoute();
   const { user1, user2 } = route.params;
   
+console.log("user1",user1)
+console.log("user2",user2)
+
+
   const sendMessage = async () => {
     if (currentMessage !== "") {
+
+      socket.emit("send_message", {dmId: dmId,receiverUserId:user2.senderId, senderUserId:user1.userId, senderUserName:user1.userName, content:currentMessage})
+
+      setMessageList([...messageList, {description:currentMessage, author:user1.userId}])
+
       console.log("body: ",user1.userId,currentMessage,dmId)
       fetch('https://test-socket-ffe88ccac614.herokuapp.com/.netlify/functions/index/message/sendMessage', {
       method: 'POST',
@@ -34,15 +46,23 @@ function Chat({navigation}) {
         throw res.status
       }
       })
-      
-      //await socket.emit("send_message", messageData);
-      //setMessageList((list) => [...list, messageData]);
-      console.log("messageList",messageList)
       setCurrentMessage("");
     }
   };
 
+  useEffect(()=>{
+    console.log("receiveMessage",receiveMessage)
+    if(receiveMessage.dmId == dmId){
+      setMessageList([...messageList, {description:receiveMessage.content, author:receiveMessage.senderUserId}])
+    }
+  },[receiveMessage])
+
   useEffect(() => {
+    console.log("user1",user1)
+    console.log("user2",user2)
+    //setMessageList((list) => [...list, messageData]);
+    
+
     console.log("useeffect",user1,user2)
     fetch('https://test-socket-ffe88ccac614.herokuapp.com/.netlify/functions/index/dm/getDmMessages', {
       method: 'POST',
@@ -52,7 +72,7 @@ function Chat({navigation}) {
       },
       body: JSON.stringify({
           "userId1":user1.userId,            
-          "userId2":user2._id,            
+          "userId2":user2.senderId,            
       })
     }).then(async (res)=>{
       if(res.status == 200){
@@ -82,7 +102,7 @@ function Chat({navigation}) {
               /> 
         </TouchableOpacity>
         <Text style={styles.headerText}>
-          {user2.name}
+          {user2.senderName}
         </Text>
       </View>
       
@@ -103,7 +123,7 @@ function Chat({navigation}) {
               <Text style={styles.description}>{messageContent.description}</Text>
             </View>
             <View style={styles.messageMeta}>
-              <Text style={styles.time}>{messageContent.createdAt.slice(11,16)}</Text>
+              {/* <Text style={styles.time}>{messageContent.createdAt.slice(11,16)}</Text>  */ }
               {/* <Text style={styles.author}>{messageContent.author==user1._id? user1.userName: user2.name}</Text> */}
             </View>
           </View>

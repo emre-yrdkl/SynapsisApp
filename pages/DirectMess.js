@@ -1,8 +1,10 @@
-import { StyleSheet, Text, View, TextInput, TouchableOpacity, ScrollView, Alert } from 'react-native';
+import { StyleSheet, Text, View, TextInput, TouchableOpacity, ScrollView, Alert, FlatList } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import {useState,useEffect} from 'react';
 import { useAuth } from '../authContext/AuthContext';
 import { useNavigation } from '@react-navigation/native';
+import NameOtherSvg from '../svg/nameOtherPages';
+import SearchSvg from '../svg/search';
 
 const AlertDialog = (title,message) =>
 Alert.alert(title, message, [
@@ -10,7 +12,7 @@ Alert.alert(title, message, [
 ]);
 
 export default function DirectMessage(){
-    const { user } = useAuth();
+    const { user, receiveMessage } = useAuth();
     const [name,setName] = useState("")
     const [email,setEmail] = useState("")
     const [allUsers,setAllUsers] = useState([])
@@ -18,23 +20,25 @@ export default function DirectMessage(){
     const [dms,setDms] = useState([])
     const navigation = useNavigation();
 
-    async function getUserInfo() {
-        
-	}
 
     useEffect( ()=>{
-        console.log("useruser",user)
-        fetch('https://test-socket-ffe88ccac614.herokuapp.com/.netlify/functions/index/user/users', {
+
+
+      fetch('https://test-socket-ffe88ccac614.herokuapp.com/.netlify/functions/index/user/users', {
             method: 'GET',
             headers: {
               'Accept': 'application/json',
               'Content-Type': 'application/json',
             },
-          }).then(async (res)=>{
-            if(res.status == 200){
-              const result = await res.json()
-              console.log("RESULT: ",result)
-              setAllUsers(result.userList)
+          }).then(async (response)=>{
+
+            if(response.status ==200){
+
+              const result2 = await response.json()
+              console.log("RESULT: ",result2)
+              setAllUsers(result2.userList)
+
+
 
               fetch('https://test-socket-ffe88ccac614.herokuapp.com/.netlify/functions/index/dm/getDms', {
                 method: 'POST',
@@ -45,79 +49,146 @@ export default function DirectMessage(){
                 body: JSON.stringify({
                     "userId":user.userId,            
                 })
-              }).then(async (res2)=>{
-                if(res2.status == 200){
-                  const result2 = await res2.json()
-                  console.log("RESULT get dms: ",result2)
-                  setDms(result2.dmList)
-                  result2.dmList.forEach(element => {
-                    console.log("hahah",result.userList)
-                    let id = ""
+              }).then(async (res)=>{
+                if(res.status == 200){
+                  const result = await res.json()
+                  console.log("RESULT get dms: ",result)
+                  setDms(result.dmList)
+
+                  let TempDmList = result.dmList
+
+                  TempDmList.forEach((element,index) => {
+                    //console.log("hahah",result.userList)
                     element.users.forEach(elm =>{
+
                         if(elm != user.userId){
-                            id = elm
+
+                            result2.userList.forEach((data)=>{
+                              if(data._id == elm){
+                                TempDmList[index].senderName = data.name
+                                TempDmList[index].senderId = data._id
+                            }
+                            })
                         }
                     })
-                    let arr = []
-                    result.userList.map(data =>{
-                        //console.log("data._id: ",data._id," id",id)
-                        if(data._id == id){
-                            let newArr = usersInfo
-                            newArr.push(data)
-                            setUsersInfo(newArr)
-                        }
-                    })
-                  });
+                  })
+
+                  console.log("TempDmList",TempDmList)
+                  setUsersInfo(TempDmList)
+
+
+
+
                 }
                 else{
                   throw res.status
                 }
               })
 
+
+
             }
-            else{
-              throw res.status
-            }
-          }).finally(()=>{
-            getUserInfo()
 
           })
 
-    },[])
+
+
+    },[receiveMessage])
 
     return(
-        <View style={styles.container}>
-            <View style={styles.titleContainer}>
-                <Text style={styles.profileTitle}>
-                    Direct Message
-                </Text>
+        <View>
+          <View style={styles.nameContainer}>
+            <NameOtherSvg/>
+          </View>
+
+          <Text style={styles.title}>Messages</Text>
+
+          <View style={styles.containerSearch}>
+            <View style={styles.searchInputView}>
+                <TextInput style={styles.searchInput} placeholder={'Search...'} placeholderTextColor="rgba(255, 159, 28, 0.50)" />
+                <SearchSvg style={styles.searchSvg}/>
             </View>
-            <View style={{flex: 1, alignItems: 'center'}}>
+          </View>
 
-            {
-                usersInfo.map((data,index)=>{
-                    return(
-                        <TouchableOpacity key={index} style={styles.mapContainer} onPress={()=>{navigation.navigate('Chat', { user1:user, user2:data})}}>
-                            <Text style={styles.mapText}>
-                                {data.name}
-                            </Text>
-                        </TouchableOpacity>
-                        
-                    )
-                })
-            }
+          <View style={styles.containerUserList}>
+            <View style={{padding:5}}>
+                  <FlatList
+                    data={usersInfo}
+                    numColumns={2}
+                    keyExtractor={(item) => item._id}
+                    renderItem={({ item }) => (
+                      <TouchableOpacity style={styles.listItem} onPress={()=>{navigation.navigate('Chat', { user1:user, user2:{item}})}}>
+                        <View style={{borderRadius:40, backgroundColor:"#36454F", width:50, height:50, marginLeft:8}}></View>
+                        <View style={{marginLeft:8, width:"80%"}}>
+                          <View style={{ flexDirection:"row", marginBottom:8, justifyContent: 'space-between'}}>
+                              <Text style={{fontFamily: 'ArialRoundedMTBold', fontSize: 15, fontWeight: '400'}}>{item.senderName}</Text>
+                              <Text style={{paddingTop:2, textAlign: 'right', fontFamily: 'ArialRoundedMTBold', fontSize: 13, fontWeight: '100'}}>18.30</Text>
+                          </View>
+                          <Text style={{fontFamily: 'ArialRoundedMTBold', fontSize: 12, fontWeight: '300'}}>
+                          {item.latestMessage}
+                          </Text>
+                        </View>
+                      </TouchableOpacity>
+                    )}
+                  />
             </View>
-
-
+          </View>
         </View>
     )    
 }
 
 const styles = StyleSheet.create({
-    container: {
-    flex: 1,
-    backgroundColor: '#a6c1ce',
-    },
+  nameContainer:{
+    alignSelf: 'center',
+    marginTop:42
+  },
+  title:{
+    color:"#FF6F61",
+    fontFamily:"ArialRoundedMTBold",
+    fontSize:35,
+    fontWeight:400,
+    marginTop:58,
+    textAlign:"center",
+  },
+  containerSearch:{
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginTop:16
+  },
+  searchInputView:{
+    borderWidth:2,
+    borderColor:"#FF9F1C",
+    borderRadius:10,
+    paddingVertical:5,
+    width:"90%",
+    flexDirection: 'row',
+  },
+  searchInput:{
+    paddingVertical:3,
+    paddingHorizontal:6,
+    width:"80%"
+  },
+  searchSvg:{
+    alignSelf: "flex-end" , 
+    position:'absolute' ,
+    right:5
+  },
+  containerUserList:{
+    borderWidth:2,
+    borderColor:"#FF9F1C",
+    borderTopLeftRadius: 25,
+    borderTopRightRadius: 25,
+    backgroundColor: '#F5F5F5',
+    marginTop:8
+  },
+  listItem: {
+    flexDirection: 'row',
+    borderWidth:2,
+    borderColor:"#FF9F1C",
+    borderRadius:20,
+    padding: 5,
+    marginVertical:4
+  },
     titleContainer:{
         borderBottomColor: '#F6F4EB',
         borderBottomWidth: 2,

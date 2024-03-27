@@ -5,6 +5,9 @@ import SvgComponent from '../svg/test';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import LogoSvg from '../svg/logo';
 
+import { horizontalScale, moderateScale, verticalScale, width, height } from '../themes/Metrics';
+
+
 const AlertDialog = (title,message) =>
 Alert.alert(title, message, [
   {text: 'OK', onPress: () => console.log('OK Pressed')},
@@ -80,9 +83,19 @@ export default function SignUp({navigation}) {
         </TouchableOpacity>
         
       
-      <View style={styles.logoContainer}>
-          <LogoSvg style={styles.svg} />
-      </View>
+        {
+          height > 700 ? 
+          
+          <View style={styles.logoContainerTall}>
+            <LogoSvg style={styles.svg} />
+          </View>
+
+        :
+        
+          <View style={styles.logoContainerShort}>
+            <LogoSvg style={styles.svg} />
+          </View>
+        }
 
       <View style={styles.inputContainer}>
         
@@ -147,9 +160,15 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   
-  logoContainer:{
+  logoContainerTall:{
     alignSelf: 'center',
-    marginTop:80
+    marginTop: verticalScale(50),
+    zIndex:2
+  },
+  logoContainerShort:{
+    alignSelf: 'center',
+    marginTop: verticalScale(30),
+    zIndex:2
   },
   svg:{
     marginHorizontal:"auto",
@@ -160,14 +179,14 @@ const styles = StyleSheet.create({
     marginBottom:30
   },
   inputContainer:{
-    marginTop:50,
+    marginTop:verticalScale(50),
     alignItems: 'center'
   },
   input:{
     display: 'flex',
     flexDirection: 'row',
-    width: 300,
-    height: 48,
+    width: horizontalScale(280),
+    height: verticalScale(55),
     padding: 8,
     paddingHorizontal: 12,
     paddingVertical: 10,
@@ -176,7 +195,6 @@ const styles = StyleSheet.create({
     borderRadius: 10,
     borderWidth: 1,
     borderColor: '#FF9F1C',
-    outlineStyle: 'none'
   },
 
   passwordView:{
@@ -211,27 +229,23 @@ iconBack:{
     fontSize: 40,
     fontStyle: 'normal',
     fontWeight: '400',
-    lineHeight: 24,
-    letterSpacing: 0.2,
   },
   
   input2: { 
     flex: 1, 
     paddingVertical: 7, 
     paddingRight: 10,
-    outlineStyle: 'none'
 }, 
   button:{
     display: 'flex',
-    width: 280,
-    height: 51,
-    padding: '9px 87px 9px 88px',
+    width: horizontalScale(200),
+    height: verticalScale(55),
     justifyContent: 'center',
     alignItems: 'center',
     flexShrink: 0,
     borderRadius:8,
     borderWidth:3,
-    borderColor:"#F5F5F5",
+    borderColor:"#FF9F1C",
     backgroundColor:"#FF9F1C"
     
   },

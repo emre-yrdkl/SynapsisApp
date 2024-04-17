@@ -72,11 +72,11 @@ export default function Home(){
 
     const navigation = useNavigation();
 
-    useEffect(()=>{
+    useEffect(()=>{41.108802, 29.031637
       
       const fetchPlacesData = async () =>{
         try {
-          const response = await fetch(`https://maps.googleapis.com/maps/api/place/nearbysearch/json?location=${user.latitude},${user.longitude}&radius=300&type=restaurant&key=AIzaSyDuSMI9n5AEwexMJJ_qxwc3jwBQIihXlJ4`);
+          const response = await fetch(`https://maps.googleapis.com/maps/api/place/nearbysearch/json?location=41.108802,29.031637&radius=300&type=restaurant&key=AIzaSyDuSMI9n5AEwexMJJ_qxwc3jwBQIihXlJ4`);
           const dataPlaces = await response.json();
           console.log("user: ", user)
 
@@ -185,17 +185,15 @@ export default function Home(){
           <MapView
           style={styles.map}
           initialRegion={{
-            latitude: user.latitude,
-            longitude: user.longitude,
+            latitude: 41.108802,
+            longitude: 29.031637,
             latitudeDelta: 0.0065,
             longitudeDelta: 0.003,
           }}
-          showsUserLocation={true}
           scrollEnabled={true}
           minZoomLevel={16}
           maxZoomLevel={20}
           rotateEnabled={false}
-          followsUserLocation={true}  
         >
 
 
@@ -203,7 +201,7 @@ export default function Home(){
       check &&
       places.map(data =>{
 
-          if(haversine(data.geometry.location.lat, data.geometry.location.lng, user.latitude, user.longitude) < 200){
+          if(haversine(data.geometry.location.lat, data.geometry.location.lng, 41.108802, 29.031637) < 200){
 
             if(checkPlacesExistOrNot[data.place_id]){
 

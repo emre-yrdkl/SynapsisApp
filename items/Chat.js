@@ -21,7 +21,7 @@ console.log("user2",user2)
   const sendMessage = async () => {
     if (currentMessage !== "") {
 
-      socket.emit("send_message", {dmId: dmId,receiverUserId:user2.senderId, senderUserId:user1.userId, senderUserName:user1.userName, content:currentMessage})
+      socket.emit("send_message", {dmId: dmId, receiverUserId:user2.senderId, senderUserId:user1.userId, senderUserName:user1.userName, content:currentMessage})
 
       setMessageList([...messageList, {description:currentMessage, author:user1.userId}])
 

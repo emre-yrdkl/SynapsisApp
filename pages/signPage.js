@@ -15,7 +15,7 @@ Alert.alert(title, message, [
 
 
 export default function Sign({navigation}) {
-  const { signIn } = useAuth();
+  const { signIn, socket } = useAuth();
   const [name,setName] = useState("")
   const [email,setEmail] = useState("")
   const [password,setPassword] = useState("")
@@ -51,6 +51,8 @@ export default function Sign({navigation}) {
         if(res.status == 200){
           const result = await res.json()
           signIn(result.userToken, result.userInfo);
+          socket.emit("setup", {userId:result.userInfo.userId})
+          console.log("result.userInfo", result.userInfo)
           navigation.replace("Dashboard")
         }
         else{

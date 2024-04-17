@@ -7,6 +7,7 @@ import { horizontalScale, moderateScale, verticalScale, width, height } from '..
 import NameOtherSvg from '../svg/nameOtherPages';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import MessageBox from '../svg/messageBox';
+import LeaveArrow from '../svg/leaveArrow';
 import { useNavigation } from '@react-navigation/native';
 
 
@@ -72,13 +73,29 @@ export default function Place(){
             
             {
             height > 700 ?
-            <View style={styles.nameContainerTall}>
-              <NameOtherSvg/>
-            </View>
+            <>
+                <TouchableOpacity style={styles.leaveButtonTall} onPress={leavePlace}>
+                        <Text>
+                            Leave
+                        </Text>
+                </TouchableOpacity>
+                <View style={styles.nameContainerTall}>
+                <NameOtherSvg/>
+                </View>
+            </>
+
             :
-            <View style={styles.nameContainerShort}>
-              <NameOtherSvg/>
-            </View>
+            <>
+                <TouchableOpacity style={styles.leaveButtonShort} onPress={leavePlace}>
+                    <LeaveArrow />
+                        <Text style={styles.leaveText}>
+                            Leave
+                        </Text>
+                </TouchableOpacity>
+                <View style={styles.nameContainerShort}>
+                <NameOtherSvg/>
+                </View>
+            </>
             }
 
             <View style={styles.storyView}>
@@ -187,8 +204,40 @@ const styles = StyleSheet.create({
         margin:verticalScale(30),
     },
     nameContainerTall:{
-        alignSelf: 'center',
+        position:"absolute",
+        marginHorizontal:verticalScale(20),
+        marginVertical:verticalScale(50),
+        paddingHorizontal:6,
+        paddingVertical:6,
+        borderRadius:10,
+        backgroundColor:"#FF6F61",
+        flexDirection:"row",
+        alignItems: 'center',
+        justifyContent: 'center',
+    },
+    leaveButtonShort:{
+        position:"absolute",
+        marginHorizontal:verticalScale(10),
+        marginVertical:verticalScale(30),
+        paddingHorizontal:6,
+        paddingVertical:6,
+        borderRadius:10,
+        backgroundColor:"#FF6F61",
+        flexDirection:"row",
+        alignItems: 'center',
+        justifyContent: 'center',
+    },
+    leaveButtonTall:{
+        position:"absolute",
         margin:verticalScale(50),
+        padding:3,
+        borderWidth:2
+    },
+    leaveText:{
+        fontSize:moderateScale(20),
+        marginLeft:5,
+        fontFamily: 'ArialRoundedMTBold',
+        color:"#fefefe"
     },
     storyView:{
         borderBottomLeftRadius: 10,
@@ -214,7 +263,7 @@ const styles = StyleSheet.create({
         paddingVertical:verticalScale(10),
         borderTopLeftRadius:10,
         borderTopRightRadius:10,
-        height:350
+        height:400
     },
     item:{
         alignItems: 'center',
@@ -222,6 +271,7 @@ const styles = StyleSheet.create({
         flex: 1,
         marginHorizontal:5,
         marginVertical:10,
+        maxWidth:width/3 -10
     },
     itemCardView:{
         flexDirection: 'row',

@@ -117,7 +117,7 @@ export default function DirectMessage(){
                     numColumns={2}
                     keyExtractor={(item) => item._id}
                     renderItem={({ item }) => (
-                      <TouchableOpacity style={styles.listItem} onPress={()=>{navigation.navigate('Chat', { user1:user, user2:{item}})}}>
+                      <TouchableOpacity style={styles.listItem} onPress={()=>{navigation.navigate('Chat', { user1:user, user2:item})}}>
                         <View style={{borderRadius:40, backgroundColor:"#36454F", width:50, height:50, marginLeft:8}}></View>
                         <View style={{marginLeft:8, width:"80%"}}>
                           <View style={{ flexDirection:"row", marginBottom:8, justifyContent: 'space-between'}}>

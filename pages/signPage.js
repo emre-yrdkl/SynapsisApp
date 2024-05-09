@@ -53,7 +53,25 @@ export default function Sign({navigation}) {
           signIn(result.userToken, result.userInfo);
           socket.emit("setup", {userId:result.userInfo.userId})
           console.log("result.userInfo", result.userInfo)
-          navigation.replace("Dashboard")
+          const responsePreferences = await fetch('https://test-socket-ffe88ccac614.herokuapp.com/.netlify/functions/index/user/checkPreferences', {
+            method: 'POST',
+            headers: {
+              'Accept': 'application/json',
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                "userId":result.userInfo.userId,
+            })  
+          })
+          const resultPreferences = await responsePreferences.json()
+          console.log("resultPreferences", resultPreferences)
+          if(resultPreferences.preferencesExist){//check if user has preferences
+            navigation.replace("Dashboard")
+          }
+          else{
+            navigation.replace("Preferences")
+            
+          }
         }
         else{
           throw res.status
@@ -214,7 +232,7 @@ logoContainerShort:{
   },
   buttonText:{
     textAlign: 'center',
-    fontFamily: 'ABeeZee',
+    fontFamily: 'ABeeZeeRegular',
     fontSize: 20,
     fontStyle: 'normal',
     fontWeight: '400',

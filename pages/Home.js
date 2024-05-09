@@ -72,11 +72,11 @@ export default function Home(){
 
     const navigation = useNavigation();
 
-    useEffect(()=>{41.108802, 29.031637
+    useEffect(()=>{
       
       const fetchPlacesData = async () =>{
         try {
-          const response = await fetch(`https://maps.googleapis.com/maps/api/place/nearbysearch/json?location=41.108802,29.031637&radius=300&type=restaurant&key=AIzaSyDuSMI9n5AEwexMJJ_qxwc3jwBQIihXlJ4`);
+          const response = await fetch(`https://maps.googleapis.com/maps/api/place/nearbysearch/json?location=${user.latitude},${user.longitude}&radius=300&type=restaurant&key=AIzaSyDuSMI9n5AEwexMJJ_qxwc3jwBQIihXlJ4`);
           const dataPlaces = await response.json();
           console.log("user: ", user)
 
@@ -185,11 +185,12 @@ export default function Home(){
           <MapView
           style={styles.map}
           initialRegion={{
-            latitude: 41.108802,
-            longitude: 29.031637,
+            latitude: user.latitude,
+            longitude: user.longitude,
             latitudeDelta: 0.0065,
             longitudeDelta: 0.003,
           }}
+          showsUserLocation={true}
           scrollEnabled={true}
           minZoomLevel={16}
           maxZoomLevel={20}
@@ -325,7 +326,7 @@ const styles = StyleSheet.create({
     position:"absolute",
     alignSelf: 'center',
     top: 0,
-    margin:verticalScale(30),
+    margin:verticalScale(40),
     zIndex:5
   },
   nameContainerTall:{

@@ -125,7 +125,7 @@ const styles = StyleSheet.create({
     loginText:{
         color: '#FF9F1C',
         textAlign: 'center',
-        fontFamily: 'ABeeZee',
+        fontFamily: 'ABeeZeeRegular',
         fontSize: 20,
         fontStyle: 'normal',
         fontWeight: '400',
@@ -144,7 +144,7 @@ const styles = StyleSheet.create({
     registerText:{
         color: '#F5F5F5',
         textAlign: 'center',
-        fontFamily: 'ABeeZee',
+        fontFamily: 'ABeeZeeRegular',
         fontSize: 20,
         fontStyle: 'normal',
         fontWeight: '400',

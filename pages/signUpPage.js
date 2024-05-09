@@ -31,10 +31,7 @@ export default function SignUp({navigation}) {
 		//event.preventDefault()//onsubmit işlemini yapmayacak. oluşan eventin işlevi geçersiz kılınır.
     if(password == repassword){
       try {
-        console.log("register","name",name,
-        "email",email,
-        "password", password,);
-        const response = await fetch('https://test-socket-ffe88ccac614.herokuapp.com/.netlify/functions/index/register', {
+        const response = await fetch('https://test-socket-ffe88ccac614.herokuapp.com/.netlify/functions/index/user/register', {
           method: 'POST',
           headers: {
             'Accept': 'application/json',
@@ -58,11 +55,10 @@ export default function SignUp({navigation}) {
   
           //navigate('/login')
         }else{
-          console.log("fail")
           AlertDialog("Error","Register error")
         }      
       } catch (error) {
-        console.log("error::",error)
+        console.log("error:",error)
       }
     }else{
       AlertDialog("Error","Password does not match")
@@ -251,7 +247,7 @@ iconBack:{
   },
   buttonText:{
     textAlign: 'center',
-    fontFamily: 'ABeeZee',
+    fontFamily: 'ABeeZeeRegular',
     fontSize: 20,
     fontStyle: 'normal',
     fontWeight: '400',

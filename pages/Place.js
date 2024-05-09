@@ -201,7 +201,7 @@ const styles = StyleSheet.create({
     },
     nameContainerShort:{
         alignSelf: 'center',
-        margin:verticalScale(30),
+        margin:verticalScale(40),
     },
     nameContainerTall:{
         position:"absolute",

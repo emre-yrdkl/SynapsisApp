@@ -12,11 +12,13 @@ import * as Font from 'expo-font';
 import Entypo from '@expo/vector-icons/Entypo';
 import * as SplashScreen from 'expo-splash-screen';
 import Chat from './items/Chat';
+import Preferences from './pages/Preferences';
+
 const Stack = createNativeStackNavigator();
 
 const fetchFonts = async () => {
   return await Font.loadAsync({
-    'ABeeZee': require('./assets/fonts/ABeeZee-Regular.ttf'),
+    'ABeeZeeRegular': require('./assets/fonts/ABeeZee-Regular.ttf'),
     'ArialRoundedMTBold': require('./assets/fonts/arlrdbd.ttf'),
     // Add other font styles if needed (e.g., bold, italic)
   });
@@ -71,11 +73,14 @@ export default function App() {
     <AuthProvider>
       <NavigationContainer>
         <Stack.Navigator>
-        <Stack.Screen name="Landing"  component={Landing} options={{ headerShown: false }}/>
+
+          <Stack.Screen name="Landing"  component={Landing} options={{ headerShown: false }}/>
           <Stack.Screen name="Sign"  component={Sign} options={{ headerShown: false }}/>
           <Stack.Screen name="SignUp" component={SignUp} options={{ headerShown: false }}/>
           <Stack.Screen name="Dashboard" component={Dashboard} options={{ headerShown: false }} />
           <Stack.Screen name="Chat" component={Chat} options={{ headerShown: false }} />
+          <Stack.Screen name="Preferences" component={Preferences} options={{ headerShown: false }} />  
+
         </Stack.Navigator>
       </NavigationContainer>
     </AuthProvider>

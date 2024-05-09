@@ -5,6 +5,7 @@ import { useAuth } from '../authContext/AuthContext';
 import { useNavigation } from '@react-navigation/native';
 import NameOtherSvg from '../svg/nameOtherPages';
 import SearchSvg from '../svg/search';
+import { horizontalScale, moderateScale, verticalScale, width, height } from '../themes/Metrics';
 
 const AlertDialog = (title,message) =>
 Alert.alert(title, message, [
@@ -97,9 +98,16 @@ export default function DirectMessage(){
 
     return(
         <View>
-          <View style={styles.nameContainer}>
-            <NameOtherSvg/>
-          </View>
+          {
+            height > 700 ?
+            <View style={styles.nameContainerTall}>
+              <NameOtherSvg/>
+            </View>
+            :
+            <View style={styles.nameContainerShort}>
+              <NameOtherSvg/>
+            </View>
+          }
 
           <Text style={styles.title}>Messages</Text>
 
@@ -111,7 +119,7 @@ export default function DirectMessage(){
           </View>
 
           <View style={styles.containerUserList}>
-            <View style={{padding:5}}>
+            <View style={{padding:5, height:"100%"}}>
                   <FlatList
                     data={usersInfo}
                     numColumns={2}
@@ -147,7 +155,7 @@ const styles = StyleSheet.create({
     fontFamily:"ArialRoundedMTBold",
     fontSize:35,
     fontWeight:400,
-    marginTop:58,
+    marginTop:verticalScale(150),
     textAlign:"center",
   },
   containerSearch:{
@@ -157,7 +165,7 @@ const styles = StyleSheet.create({
   },
   searchInputView:{
     borderWidth:2,
-    borderColor:"#FF9F1C",
+    borderColor:"#E69400",
     borderRadius:10,
     paddingVertical:5,
     width:"90%",
@@ -175,16 +183,17 @@ const styles = StyleSheet.create({
   },
   containerUserList:{
     borderWidth:2,
-    borderColor:"#FF9F1C",
+    borderColor:"#E69400",
     borderTopLeftRadius: 25,
     borderTopRightRadius: 25,
     backgroundColor: '#F5F5F5',
-    marginTop:8
+    marginTop:8,
+    height:"100%"
   },
   listItem: {
     flexDirection: 'row',
     borderWidth:2,
-    borderColor:"#FF9F1C",
+    borderColor:"#E69400",
     borderRadius:20,
     padding: 5,
     marginVertical:4
@@ -212,5 +221,19 @@ const styles = StyleSheet.create({
     mapText:{
         fontSize:20,
         paddingLeft:5
-    }
+    },
+    nameContainerShort:{
+      position:"absolute",
+      alignSelf: 'center',
+      top: 0,
+      margin:verticalScale(40),
+      zIndex:5
+    },
+    nameContainerTall:{
+      position:"absolute",
+      alignSelf: 'center',
+      top: 0,
+      margin:verticalScale(50),
+      zIndex:5
+    },
 });

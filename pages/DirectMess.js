@@ -154,8 +154,7 @@ const styles = StyleSheet.create({
     color:"#FF6F61",
     fontFamily:"ArialRoundedMTBold",
     fontSize:35,
-    fontWeight:400,
-    marginTop:verticalScale(150),
+    marginTop:verticalScale(130),
     textAlign:"center",
   },
   containerSearch:{

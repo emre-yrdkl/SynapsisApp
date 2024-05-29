@@ -1,6 +1,6 @@
 import { StyleSheet, Text, View, TextInput, TouchableOpacity, ScrollView, Alert, Image  } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import {useState,useEffect} from 'react';
+import {useState,useEffect, useCallback} from 'react';
 import { useAuth } from '../authContext/AuthContext';
 import Notification from '../items/Notification';
 import * as Progress from 'react-native-progress';
@@ -9,6 +9,7 @@ import NameOtherSvg from '../svg/nameOtherPages';
 import * as ImagePicker from 'expo-image-picker';
 import axios from 'axios';
 import DateTimePicker from '@react-native-community/datetimepicker';
+
 
 const AlertDialog = (title,message) =>
 Alert.alert(title, message, [
@@ -416,7 +417,7 @@ const styles = StyleSheet.create({
         borderTopRightRadius: 25,
         backgroundColor: '#F5F5F5',
         marginTop:8,
-        height:height- verticalScale(240),
+        height:height- verticalScale(200),
       },
       imageView:{
         borderRadius:10, 

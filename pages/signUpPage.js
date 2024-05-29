@@ -38,7 +38,6 @@ export default function SignUp({navigation}) {
             'Content-Type': 'application/json',
           },
           body: JSON.stringify({
-              "name":name,
               "email":email,
               "password": password,
           }),
@@ -48,15 +47,11 @@ export default function SignUp({navigation}) {
   
         console.log("data: ",data.userName)
     
-        if (data.userName === name) {//burası değişecek status == success
           console.log("success")
           AlertDialog("Sucess","successfully registered")
           navigation.replace("Sign")
   
           //navigate('/login')
-        }else{
-          AlertDialog("Error","Register error")
-        }      
       } catch (error) {
         console.log("error:",error)
       }

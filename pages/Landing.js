@@ -40,7 +40,7 @@ export default function Landing({navigation}) {
           <View style={styles.backgroundSvgContainer}>
             <BackgroundLogoSvg />  
           </View>
-          <View style={styles.logoContainerTall}>
+          <View style={{...styles.logoContainerTall, width: 189, height: 171 }}>
             <LogoSvg style={styles.svg} />
           </View>
           </>
@@ -50,7 +50,7 @@ export default function Landing({navigation}) {
           <View style={styles.backgroundSvgContainer}>
             <BackgroundLogoSvgSmall />  
           </View>
-          <View style={styles.logoContainerShort}>
+          <View style={{...styles.logoContainerShort, width: 189, height: 171 }}>
             <LogoSvg style={styles.svg} />
           </View>
         </>

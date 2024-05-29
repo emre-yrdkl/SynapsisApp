@@ -1,42 +1,55 @@
-import { StyleSheet, Text, View, TextInput, TouchableOpacity, ScrollView, Alert } from 'react-native';
-import AsyncStorage from '@react-native-async-storage/async-storage';
-import {useState} from 'react';
-import SvgComponent from '../svg/test';
+import React, { useState, useEffect } from 'react';
+import { StyleSheet, Text, View, TextInput, TouchableOpacity, KeyboardAvoidingView, TouchableWithoutFeedback, Keyboard, Animated } from 'react-native';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { useAuth } from '../authContext/AuthContext';
 import LogoSvg from '../svg/logo';
+import { horizontalScale, verticalScale, height } from '../themes/Metrics';
 
-import { horizontalScale, moderateScale, verticalScale, width, height } from '../themes/Metrics';
+const AlertDialog = (title, message) =>
+  Alert.alert(title, message, [
+    { text: 'OK', onPress: () => console.log('OK Pressed') },
+  ]);
 
-const AlertDialog = (title,message) =>
-Alert.alert(title, message, [
-  {text: 'OK', onPress: () => console.log('OK Pressed')},
-]);
+export default function Sign({ navigation }) {
+  const { signIn, socket, setPreferences } = useAuth();
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
+  const logoSize = new Animated.Value(height > 700 ? 200 : 150);
 
+  const toggleShowPassword = () => {
+    setShowPassword(!showPassword);
+  };
 
-export default function Sign({navigation}) {
-  const { signIn, socket } = useAuth();
-  const [name,setName] = useState("")
-  const [email,setEmail] = useState("")
-  const [password,setPassword] = useState("")
+  const handleKeyboardShow = () => {
+    Animated.timing(logoSize, {
+      toValue: height > 700 ? 180 : 100,
+      duration: 200,
+      useNativeDriver: false,
+    }).start();
+  };
 
-  const [showPassword, setShowPassword] = useState(false); 
-  
-    // Function to toggle the password visibility state 
-    const toggleShowPassword = () => { 
-        setShowPassword(!showPassword); 
-    }; 
+  const handleKeyboardHide = () => {
+    Keyboard.dismiss();
+    Animated.timing(logoSize, {
+      toValue: height > 700 ? 260 : 180,
+      duration: 200,
+      useNativeDriver: false,
+    }).start();
+  };
 
-  async function registerUser() {
+  useEffect(() => {
+    const keyboardDidShowListener = Keyboard.addListener('keyboardDidShow', handleKeyboardShow);
+    const keyboardDidHideListener = Keyboard.addListener('keyboardDidHide', handleKeyboardHide);
 
-    navigation.replace("SignUp")
-
-	}
+    return () => {
+      keyboardDidHideListener.remove();
+      keyboardDidShowListener.remove();
+    };
+  }, []);
 
   async function loginUser() {
     try {
-      console.log("login")
-      console.log(email, password);
       fetch('https://test-socket-ffe88ccac614.herokuapp.com/.netlify/functions/index/auth/authenticate', {
         method: 'POST',
         headers: {
@@ -44,15 +57,15 @@ export default function Sign({navigation}) {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          "email":email,
-          "password":password,
+          "email": email,
+          "password": password,
         }),
-      }).then(async (res)=>{
-        if(res.status == 200){
-          const result = await res.json()
+      }).then(async (res) => {
+        if (res.status == 200) {
+          const result = await res.json();
           signIn(result.userToken, result.userInfo);
-          socket.emit("setup", {userId:result.userInfo.userId})
-          console.log("result.userInfo", result.userInfo)
+          socket.emit("setup", { userId: result.userInfo.userId });
+          console.log("result.userInfo", result.userInfo);
           const responsePreferences = await fetch('https://test-socket-ffe88ccac614.herokuapp.com/.netlify/functions/index/user/checkPreferences', {
             method: 'POST',
             headers: {
@@ -60,106 +73,79 @@ export default function Sign({navigation}) {
               'Content-Type': 'application/json',
             },
             body: JSON.stringify({
-                "userId":result.userInfo.userId,
-            })  
-          })
-          const resultPreferences = await responsePreferences.json()
-          console.log("resultPreferences", resultPreferences)
-          if(resultPreferences.preferencesExist){//check if user has preferences
-            navigation.replace("Dashboard")
+              "userId": result.userInfo.userId,
+            })
+          });
+          const resultPreferences = await responsePreferences.json();
+
+          if (resultPreferences.preferencesExist) {
+            setPreferences(resultPreferences.preferences);
+            navigation.replace("Dashboard");
           }
-          else{
-            navigation.replace("Preferences")
-            
+          else {
+            navigation.replace("Preferences");
           }
         }
-        else{
-          throw res.status
+        else {
+          throw res.status;
         }
-      })
-      /*
-      const data = await response.json()
-      console.log("data: ",data)
-      if (data.userToken) {
-        AsyncStorage.setItem('token', data.userToken)//local storage'da token tutuluyor
-        const value = await AsyncStorage.getItem('token');
-        console.log("value:",value)
-        AlertDialog("Sucess","successfully logged in")
-        navigation.replace("Dashboard")
-        //navigate('/dashboard')
-        //window.location.href = '/dashboard'
-      } else {
-        AlertDialog("Error","check your username and password")
-      }
-      */
-
-
+      });
     } catch (error) {
-      console.log("err:",error)
+      console.log("err:", error);
     }
-
-	}
+  }
 
   return (
-    <View style={styles.container} >
+    <KeyboardAvoidingView style={styles.container} behavior="padding">
+      <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
+        <View style={styles.inner}>
+          {/*<TouchableOpacity style={styles.iconBack} onPress={() => navigation.navigate("Landing")}>
+            <MaterialCommunityIcons
+              name="arrow-left"
+              size={28}
+              color="#aaa"
+            />
+  </TouchableOpacity>*/}
 
-        <TouchableOpacity style={styles.iconBack} onPress={()=>navigation.navigate("Landing")}>
-            <MaterialCommunityIcons 
-                    name="arrow-left"
-                    size={28} 
-                    color="#aaa"
-                /> 
-        </TouchableOpacity>
-      
-      {
-          height > 700 ? 
-          
-          <View style={styles.logoContainerTall}>
+          <Animated.View style={{ alignSelf: 'center', marginTop: verticalScale(50), width: logoSize, height: logoSize }}>
             <LogoSvg style={styles.svg} />
-          </View>
+          </Animated.View>
 
-        :
-        
-          <View style={styles.logoContainerShort}>
-            <LogoSvg style={styles.svg} />
-          </View>
-        }
+          <View style={styles.inputContainer}>
+            <Text style={styles.loginText}>Log in</Text>
 
+            <View style={styles.emailContainer}>
+              <TextInput style={styles.input} placeholder={'Email'} placeholderTextColor="#ffc16f" value={email} onChangeText={(text) => setEmail(text)} />
+            </View>
 
-      <View style={styles.inputContainer}>
-        
-          <Text style={styles.loginText}>Log in</Text>
-
-          <View style={styles.emailContainer}>
-            <TextInput style={styles.input} placeholder={'Email'} placeholderTextColor="#ffc16f" value={email} onChangeText={(text)=>setEmail(text)}/>          
+            <View style={styles.input}>
+              <TextInput
+                secureTextEntry={!showPassword}
+                value={password}
+                onChangeText={setPassword}
+                style={styles.inputPass}
+                placeholder="Enter Password"
+                placeholderTextColor="#ffc16f"
+              />
+              <MaterialCommunityIcons
+                name={showPassword ? 'eye-off' : 'eye'}
+                size={24}
+                color="#FF9F1C"
+                style={styles.icon}
+                onPress={toggleShowPassword}
+              />
+            </View>
+            <View style={styles.buttonContainer}>
+              <TouchableOpacity style={styles.button} onPress={() => loginUser()}>
+                <Text style={styles.buttonText}>
+                  Sign In
+                </Text>
+              </TouchableOpacity>
+            </View>
           </View>
-          
-          <View style={styles.input}> 
-                <TextInput 
-                    secureTextEntry={!showPassword} 
-                    value={password} 
-                    onChangeText={setPassword} 
-                    style={styles.inputPass} 
-                    placeholder="Enter Password"
-                    placeholderTextColor="#ffc16f"
-                /> 
-                <MaterialCommunityIcons 
-                    name={showPassword ? 'eye-off' : 'eye'} 
-                    size={24} 
-                    color="#FF9F1C"
-                    style={styles.icon} 
-                    onPress={toggleShowPassword} 
-                /> 
-          </View> 
-          <View style={styles.buttonContainer}>
-            <TouchableOpacity style={styles.button} onPress={()=>loginUser()}>
-              <Text style={styles.buttonText}>
-                Sign In
-              </Text>
-            </TouchableOpacity>
-          </View>
-      </View>
-    </View>
+        </View>
+      </TouchableWithoutFeedback>
+    </KeyboardAvoidingView>
   );
 }
 
@@ -167,38 +153,32 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
   },
-  logoContainerTall:{
-    alignSelf: 'center',
-    marginTop: verticalScale(50),
-    zIndex:2
-},
-logoContainerShort:{
-  alignSelf: 'center',
-  marginTop: verticalScale(30),
-  zIndex:2
-},
-  svg:{
-    marginHorizontal:"auto",
+  inner: {
+    flex: 1,
+    justifyContent: 'center',
   },
-  icon: { 
+  svg: {
+    marginHorizontal: "auto",
+  },
+  icon: {
     marginLeft: 10,
-  }, 
-  emailContainer:{
-    marginTop:25,
-    marginBottom:30
   },
-  loginText:{
+  emailContainer: {
+    marginTop: 25,
+    marginBottom: 30,
+  },
+  loginText: {
     color: '#FF6F61',
     fontFamily: 'ArialRoundedMTBold',
     fontSize: 40,
     fontStyle: 'normal',
     fontWeight: '400',
   },
-  inputContainer:{
-    marginTop:verticalScale(50),
+  inputContainer: {
+    marginTop: verticalScale(50),
     alignItems: 'center'
   },
-  input:{
+  input: {
     display: 'flex',
     flexDirection: 'row',
     width: horizontalScale(280),
@@ -212,25 +192,24 @@ logoContainerShort:{
     borderWidth: 1,
     borderColor: '#FF9F1C',
   },
-  inputPass: { 
-    flex: 1, 
+  inputPass: {
+    flex: 1,
     paddingRight: 10,
-    paddingVertical: 7, 
-    
-  }, 
-  button:{
+    paddingVertical: 7,
+  },
+  button: {
     display: 'flex',
     width: horizontalScale(200),
     height: verticalScale(55),
     justifyContent: 'center',
     alignItems: 'center',
     flexShrink: 0,
-    borderRadius:8,
-    borderWidth:3,
-    borderColor:"#FF9F1C",
-    backgroundColor:"#F5F5F5"
+    borderRadius: 8,
+    borderWidth: 3,
+    borderColor: "#FF9F1C",
+    backgroundColor: "#F5F5F5"
   },
-  buttonText:{
+  buttonText: {
     textAlign: 'center',
     fontFamily: 'ABeeZeeRegular',
     fontSize: 20,
@@ -238,13 +217,13 @@ logoContainerShort:{
     fontWeight: '400',
     color: '#FF9F1C'
   },
-  buttonContainer:{
-    marginTop:30,
+  buttonContainer: {
+    marginTop: 30,
   },
-  iconBack:{
-    position:"absolute",
-    marginTop:40,
-    marginLeft:10,
-    zIndex:1
-},
+  iconBack: {
+    position: "absolute",
+    marginTop: 40,
+    marginLeft: 10,
+    zIndex: 1
+  },
 });

@@ -40,7 +40,8 @@ export const AuthProvider = ({ children }) => {
     }, [socket]);
 
     const signIn = (token, userInfo) => {
-      console.log("Ağğğğ",user)
+      
+        console.log("Ağğğğ",userInfo)
         AsyncStorage.setItem('token', token)//local storage'da token tutuluyor
         setUser(current => ({ ...current, token, ...userInfo }));
         console.log("loooooo", user)
@@ -51,6 +52,11 @@ export const AuthProvider = ({ children }) => {
       
     };
 
+    const setPreferences = (preferences) => {
+      setUser(current => ({ ...current, preferences }));
+      
+    };
+
     const signOut = () => {
         setUser(null);
         AsyncStorage.removeItem('token')
@@ -58,7 +64,7 @@ export const AuthProvider = ({ children }) => {
 
     return (
     <AuthContext.Provider value={{ user, signIn, signOut, socket, receiveMessage, 
-    setLocation, setCheckInPlace, checkInPlace, setRoomId, roomId, receiveUserList }}>
+    setLocation, setPreferences, setCheckInPlace, checkInPlace, setRoomId, roomId, receiveUserList }}>
         {children}
     </AuthContext.Provider>
     );

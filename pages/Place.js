@@ -1,4 +1,4 @@
-import { StyleSheet, Text, View, TextInput, TouchableOpacity, ScrollView, Alert, FlatList } from 'react-native';
+import { StyleSheet, Text, View, TextInput, TouchableOpacity, ScrollView, Alert, FlatList, Image } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import {useState,useEffect} from 'react';
 import { useAuth } from '../authContext/AuthContext';
@@ -15,29 +15,6 @@ const AlertDialog = (title,message) =>
 Alert.alert(title, message, [
   {text: 'OK', onPress: () => console.log('OK Pressed')},
 ]);
-
-const data = [
-    { id: '1', title: 'Emre Y.' },
-    { id: '2', title: 'Egemen C.' },
-    { id: '3', title: 'Abdülre T.' },
-    { id: '4', title: 'Item 4' },
-    { id: '5', title: 'Item 5' },
-    { id: '6', title: 'Item 6' },
-    { id: '7', title: 'Item 6' },
-    { id: '8', title: 'Item 6' },
-    { id: '9', title: 'Item 6' },
-    { id: '10', title: 'Item 6' },
-    { id: '11', title: 'Item 6' },
-    { id: '12', title: 'Item 6' },
-    { id: '13', title: 'Item 6' },
-    { id: '14', title: 'Item 6' },
-    { id: '15', title: 'Item 6' },
-    { id: '16', title: 'Item 6' },
-    { id: '17', title: 'Item 6' },
-    { id: '18', title: 'Item 6' },
-
-
-  ];
 
 export default function Place(){
 
@@ -74,14 +51,14 @@ export default function Place(){
             {
             height > 700 ?
             <>
-                <TouchableOpacity style={styles.leaveButtonTall} onPress={leavePlace}>
+                <TouchableOpacity style={{borderWidth:2, marginTop:24}} onPress={leavePlace}>
                         <Text>
                             Leave
                         </Text>
                 </TouchableOpacity>
-                <View style={styles.nameContainerTall}>
+                {/*style={styles.leaveButtonTall}<View style={styles.nameContainerTall}>
                 <NameOtherSvg/>
-                </View>
+            </View>*/}
             </>
 
             :
@@ -98,7 +75,7 @@ export default function Place(){
             </>
             }
 
-            <View style={styles.storyView}>
+            {/*<View style={styles.storyView}>
                 <View style={{marginVertical:13, marginHorizontal:5, flexDirection:"row"}}>
                     
                     <View style={{width:60, height:60, backgroundColor:"#FF6F61", borderRadius:30, justifyContent: 'center', alignItems: 'center'}}>
@@ -132,7 +109,7 @@ export default function Place(){
                     </View>
                 </View>
                     
-            </View>
+            </View>*/}
 
             <View style={styles.activePeopleView}>
                     <Text style={styles.activePeopleText}>
@@ -141,31 +118,34 @@ export default function Place(){
             </View>
 
             <View style={styles.listView}>
-                <FlatList
-                    data={receiveUserList}
-                    keyExtractor={item => item.userId}
-                    contentContainerStyle={styles.list}
-                    numColumns={3}
-                    renderItem={({ item }) => (
-                        <View style={styles.item}>
-                            <View style={{width:"100%", height:145 , borderWidth:2, borderRadius:8, backgroundColor:"#FF9F1C46", borderColor:"#FF9F1C"}}>
-                            </View>
-                            <View style={styles.itemCardView}>
-                                <View style={styles.itemCardTextView}>
-                                    <Text style={styles.ItemCardText}>{item.userName}</Text>
-                                </View> 
 
-                                <View style={styles.itemCardButtonView}>
-                                    <TouchableOpacity onPress={()=>{navigation.navigate('Chat', { user1:user, user2:{senderId:item.userId, senderName:item.userName}})}}>
-                                        <MessageBox />
-                                    </TouchableOpacity>
-                                </View>
-                            </View> 
-                             
-                            
+            {receiveUserList.length > 0 &&
+                <FlatList
+                    data={receiveUserList.filter((item) => item.userId !== user.userId)}
+                    keyExtractor={item => item.userId}
+                    numColumns={3}
+                    style={{paddingHorizontal: 5}}
+                    renderItem={({ item }) => (
+                        console.log("itememre",item), // Add a comma here
+                        <TouchableOpacity style={styles.item} onPress={()=>{navigation.navigate('OthersProfile', { searcherId:user.userId, searchedId:item.userId, friendshipId:item.friendshipId})}}>
+                        <Image source={{ uri: item.preferences.imageUrl }} style={styles.image} resizeMode="cover"/>
+                        {/*<View style={{ width: "100%", height: 145, borderWidth: 2, borderRadius: 8, backgroundColor: "#FF9F1C46", borderColor: "#FF9F1C" }}>
+                        </View>*/}
+                        <View style={styles.itemCardView}>
+                        <View style={styles.itemCardTextView}>
+                            <Text style={styles.ItemCardText}>{item.preferences.name}</Text>
                         </View>
+
+                        <View style={styles.itemCardButtonView}>
+                            <TouchableOpacity onPress={() => { console.log("click") }}>
+                            <MessageBox />
+                            </TouchableOpacity>
+                        </View>
+                        </View>
+                    </TouchableOpacity>
                     )}
                 />
+            }
             </View>
 
 {/*
@@ -265,29 +245,34 @@ const styles = StyleSheet.create({
         borderTopRightRadius:10,
         height:400
     },
-    item:{
+    item: {
         alignItems: 'center',
         justifyContent: 'center',
         flex: 1,
-        marginHorizontal:5,
-        marginVertical:10,
-        maxWidth:width/3 -10
-    },
-    itemCardView:{
+        marginHorizontal: 5,
+        marginVertical: 10,
+        maxWidth: (width - 34) / 3
+      },
+      itemCardView: {
         flexDirection: 'row',
         justifyContent: 'space-between',
         alignItems: 'center', // Vertical center alignment
-        marginTop:verticalScale(10),
-        paddingHorizontal:5
-    },
-    itemCardTextView:{
+        marginTop: 10,
+        paddingHorizontal: 5
+      },
+      itemCardTextView: {
         flex: 1,
-    },
-    ItemCardText:{
+      },
+      ItemCardText: {
         textAlign: 'left',
-    },
-    itemCardButtonView:{
+      },
+      itemCardButtonView: {
         alignItems: 'flex-end',
-        marginLeft:5
-    }
+        marginLeft: 5
+      },
+      image: {
+        width: "100%", 
+        height: 145,
+        borderRadius: 10,
+      },
 });

@@ -13,6 +13,7 @@ import Entypo from '@expo/vector-icons/Entypo';
 import * as SplashScreen from 'expo-splash-screen';
 import Chat from './items/Chat';
 import Preferences from './pages/Preferences';
+import OthersProfile from './pages/OthersProfile';
 
 const Stack = createNativeStackNavigator();
 
@@ -31,17 +32,14 @@ export default function App() {
   useEffect(() => {
     async function prepare() {
       try {
-        console.log("sago4")
         // Keep the splash screen visible while we fetch resources
         await SplashScreen.preventAutoHideAsync();
         // Pre-load fonts, make any API calls you need to do here
         await fetchFonts()
         // Artificially delay for two seconds to simulate a slow loading
         // experience. Please remove this if you copy and paste the code!
-        console.log("sago5")
       } catch (e) {
         console.warn(e);
-        console.log("sago6")
       } finally {
         // Tell the application to render
         setAppIsReady(true);
@@ -63,7 +61,6 @@ export default function App() {
     }
   }, [appIsReady]);
 
-
   if (!appIsReady) {
     console.log("sago")
     return null;
@@ -79,6 +76,7 @@ export default function App() {
           <Stack.Screen name="SignUp" component={SignUp} options={{ headerShown: false }}/>
           <Stack.Screen name="Dashboard" component={Dashboard} options={{ headerShown: false }} />
           <Stack.Screen name="Chat" component={Chat} options={{ headerShown: false }} />
+          <Stack.Screen name="OthersProfile" component={OthersProfile} options={{ headerShown: false }} />
           <Stack.Screen name="Preferences" component={Preferences} options={{ headerShown: false }} />  
 
         </Stack.Navigator>

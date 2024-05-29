@@ -76,10 +76,10 @@ export default function Home(){
       
       const fetchPlacesData = async () =>{
         try {
-          const response = await fetch(`https://maps.googleapis.com/maps/api/place/nearbysearch/json?location=${user.latitude},${user.longitude}&radius=300&type=restaurant&key=AIzaSyDuSMI9n5AEwexMJJ_qxwc3jwBQIihXlJ4`);
+          const response = await fetch(`https://maps.googleapis.com/maps/api/place/nearbysearch/json?location=41.108738,29.032098&radius=300&type=restaurant&key=AIzaSyDuSMI9n5AEwexMJJ_qxwc3jwBQIihXlJ4`);
           const dataPlaces = await response.json();
           console.log("user: ", user)
-
+          console.log("dataPlaces", dataPlaces)
           if(dataPlaces.status == "OK"){
 
             setPlaces(dataPlaces.results);
@@ -125,7 +125,7 @@ export default function Home(){
         placeId : data.place_id,
         userId: user.userId,
         userName: user.userName,
-        userImageUrl:"xxxxxxxxxxxx"
+        preferences: user.preferences,
       }
       socket.emit("createPlace",obj)
   
@@ -147,12 +147,14 @@ export default function Home(){
     }
 
     const handleMarkerPressJoin = async (data) =>{
-      console.log("joi", data.place_id) 
+      console.log("joi1:", data) 
+      console.log("joi2:", user) 
+
       const obj = {
         placeId : data.place_id,
         userId: user.userId,
         userName: user.userName,
-        userImageUrl:"xxxxxxxxxxxx"
+        preferences: user.preferences,
       }
       console.log("obj:", obj)
       socket.emit("joinToPlace", obj)
@@ -185,8 +187,8 @@ export default function Home(){
           <MapView
           style={styles.map}
           initialRegion={{
-            latitude: user.latitude,
-            longitude: user.longitude,
+            latitude: 41.108738,
+            longitude: 29.032098,
             latitudeDelta: 0.0065,
             longitudeDelta: 0.003,
           }}
@@ -201,8 +203,8 @@ export default function Home(){
 {
       check &&
       places.map(data =>{
-
-          if(haversine(data.geometry.location.lat, data.geometry.location.lng, 41.108802, 29.031637) < 200){
+          
+          if(haversine(data.geometry.location.lat, data.geometry.location.lng, 41.108738, 29.032098) < 200){
 
             if(checkPlacesExistOrNot[data.place_id]){
 

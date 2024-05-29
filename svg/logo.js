@@ -1,10 +1,11 @@
 import * as React from "react"
 import Svg, { Path } from "react-native-svg"
-const LogoSvg = (props) => (
+const LogoSvg = ({ width, height, ...props }) => (
     <Svg
     xmlns="http://www.w3.org/2000/svg"
-    width={189}
-    height={171}
+    width={width}
+    height={height}
+    viewBox="0 0 189 171"
     fill="none"
     {...props}
   >

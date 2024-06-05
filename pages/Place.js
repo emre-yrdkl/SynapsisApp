@@ -51,7 +51,7 @@ export default function Place(){
             {
             height > 700 ?
             <>
-                <TouchableOpacity style={{borderWidth:2, marginTop:24}} onPress={leavePlace}>
+                <TouchableOpacity style={{borderWidth:2, marginTop:48, marginLeft:24}} onPress={leavePlace}>
                         <Text>
                             Leave
                         </Text>
@@ -136,11 +136,6 @@ export default function Place(){
                             <Text style={styles.ItemCardText}>{item.preferences.name}</Text>
                         </View>
 
-                        <View style={styles.itemCardButtonView}>
-                            <TouchableOpacity onPress={() => { console.log("click") }}>
-                            <MessageBox />
-                            </TouchableOpacity>
-                        </View>
                         </View>
                     </TouchableOpacity>
                     )}
@@ -254,17 +249,17 @@ const styles = StyleSheet.create({
         maxWidth: (width - 34) / 3
       },
       itemCardView: {
+        flex:1,
         flexDirection: 'row',
-        justifyContent: 'space-between',
         alignItems: 'center', // Vertical center alignment
         marginTop: 10,
-        paddingHorizontal: 5
       },
       itemCardTextView: {
         flex: 1,
       },
       ItemCardText: {
         textAlign: 'left',
+        fontSize: 16,
       },
       itemCardButtonView: {
         alignItems: 'flex-end',

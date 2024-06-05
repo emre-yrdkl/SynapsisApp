@@ -14,7 +14,6 @@ export const AuthProvider = ({ children }) => {
     const [socket, setSocket] = useState(null);
 
     useEffect(() => {
-      console.log("newSocket")
       // Initialize socket connection only once when component mounts
       const newSocket = io.connect("https://test-socket-ffe88ccac614.herokuapp.com");
       setSocket(newSocket);

@@ -68,6 +68,7 @@ const FriendRequest = ({ onToggle, initialData = [], receiverId }) => {
     const data = await response.json()
 
     if (response.status === 200 && data.friendshipUpdated.status === "confirmed") {
+      console.log("sago",data)
       setData(prevData => prevData.filter(request => request.friendshipId !== friendshipId));
     }  else { 
         AlertDialog("Error",data.error)
@@ -92,9 +93,7 @@ const rejectFriend = async (senderId, friendshipId) => {
 
     const data = await response.json()
 
-    console.log("rejectFriend",data.friendshipUpdated)
-
-    if (response.status === 200 && data.friendshipUpdated.status === "confirmed") {
+    if (response.status === 200 && data === "friendship deleted") {
         setData(prevData => prevData.filter(request => request.friendshipId !== friendshipId));
     }  else { 
         AlertDialog("Error",data.error)
@@ -109,7 +108,7 @@ const rejectFriend = async (senderId, friendshipId) => {
       </TouchableOpacity>
       <Animated.View style={[styles.collapsible, { height: animatedHeight }]}>
         <ScrollView>
-          {data.map((request, index) => (
+          {data.length > 0 && data.map((request, index) => (
             <View key={index} style={styles.request}>
               <View style={{flexDirection:"row", alignItems:"center"}}>
               <Image source={{ uri: request.userInfo.preferences.imageUrl }} style={styles.image} resizeMode="cover"/>

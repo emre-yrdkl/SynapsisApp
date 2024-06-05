@@ -76,7 +76,7 @@ export default function Home(){
       
       const fetchPlacesData = async () =>{
         try {
-          const response = await fetch(`https://maps.googleapis.com/maps/api/place/nearbysearch/json?location=41.108738,29.032098&radius=300&type=restaurant&key=AIzaSyDuSMI9n5AEwexMJJ_qxwc3jwBQIihXlJ4`);
+          const response = await fetch(`https://maps.googleapis.com/maps/api/place/nearbysearch/json?location=41.108738,29.032098&radius=300&type=restaurant&key=AIzaSyAcKC8DiY_yVRr6_Y5xPtzsaBGZ8-jiqaY`);
           const dataPlaces = await response.json();
           console.log("user: ", user)
           console.log("dataPlaces", dataPlaces)
@@ -171,7 +171,6 @@ export default function Home(){
 
     return(
         <View>
-
           {
             height > 700 ?
             <View style={styles.nameContainerTall}>
@@ -197,8 +196,8 @@ export default function Home(){
           minZoomLevel={16}
           maxZoomLevel={20}
           rotateEnabled={false}
+          
         >
-
 
 {
       check &&
@@ -274,10 +273,7 @@ export default function Home(){
                   </Callout>
                 </Marker>
                 )
-                
-                
             }
-
           } 
           else{   
             return(
@@ -309,7 +305,6 @@ export default function Home(){
               </Marker>
               )
           }
-
       })
     }
 

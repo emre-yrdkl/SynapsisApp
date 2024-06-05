@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from 'react';
-import { StyleSheet, Text, View, TextInput, TouchableOpacity, KeyboardAvoidingView, TouchableWithoutFeedback, Keyboard, Animated } from 'react-native';
+import React, { useState, useEffect, useRef } from 'react';
+import { StyleSheet, Text, View, TextInput, TouchableOpacity, KeyboardAvoidingView, TouchableWithoutFeedback, Keyboard, Animated, Alert } from 'react-native';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { useAuth } from '../authContext/AuthContext';
 import LogoSvg from '../svg/logo';
@@ -15,27 +15,42 @@ export default function Sign({ navigation }) {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
-  const logoSize = new Animated.Value(height > 700 ? 200 : 150);
+
+  const logoSize = useRef(new Animated.Value(height > 700 ? 200 : 150)).current;
+  const marginTop = useRef(new Animated.Value(verticalScale(40))).current;
 
   const toggleShowPassword = () => {
     setShowPassword(!showPassword);
   };
 
   const handleKeyboardShow = () => {
-    Animated.timing(logoSize, {
-      toValue: height > 700 ? 180 : 100,
-      duration: 200,
-      useNativeDriver: false,
-    }).start();
+    Animated.parallel([
+      Animated.timing(logoSize, {
+        toValue: height > 700 ? 180 : 120,
+        duration: 200,
+        useNativeDriver: false,
+      }),
+      Animated.timing(marginTop, {
+        toValue: verticalScale(20),
+        duration: 200,
+        useNativeDriver: false,
+      }),
+    ]).start();
   };
 
   const handleKeyboardHide = () => {
-    Keyboard.dismiss();
-    Animated.timing(logoSize, {
-      toValue: height > 700 ? 260 : 180,
-      duration: 200,
-      useNativeDriver: false,
-    }).start();
+    Animated.parallel([
+      Animated.timing(logoSize, {
+        toValue: height > 700 ? 260 : 180,
+        duration: 200,
+        useNativeDriver: false,
+      }),
+      Animated.timing(marginTop, {
+        toValue: verticalScale(40),
+        duration: 200,
+        useNativeDriver: false,
+      }),
+    ]).start();
   };
 
   useEffect(() => {
@@ -80,11 +95,23 @@ export default function Sign({ navigation }) {
 
           if (resultPreferences.preferencesExist) {
             setPreferences(resultPreferences.preferences);
-            navigation.replace("Dashboard");
+            navigation.reset({
+              index: 0,
+              routes: [{ name: 'Dashboard' }],
+            })
+            //navigation.replace("Dashboard");
           }
           else {
             navigation.replace("Preferences");
           }
+        }
+        else if (res.status == 400) {
+          const result = await res.json();
+          AlertDialog("Error", result.message);
+        }
+        else if (res.status == 401) {
+          const result = await res.json();
+          AlertDialog("Error", result.message);
         }
         else {
           throw res.status;
@@ -99,14 +126,6 @@ export default function Sign({ navigation }) {
     <KeyboardAvoidingView style={styles.container} behavior="padding">
       <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
         <View style={styles.inner}>
-          {/*<TouchableOpacity style={styles.iconBack} onPress={() => navigation.navigate("Landing")}>
-            <MaterialCommunityIcons
-              name="arrow-left"
-              size={28}
-              color="#aaa"
-            />
-  </TouchableOpacity>*/}
-
           <Animated.View style={{ alignSelf: 'center', marginTop: verticalScale(50), width: logoSize, height: logoSize }}>
             <LogoSvg style={styles.svg} />
           </Animated.View>
@@ -114,9 +133,15 @@ export default function Sign({ navigation }) {
           <View style={styles.inputContainer}>
             <Text style={styles.loginText}>Log in</Text>
 
-            <View style={styles.emailContainer}>
-              <TextInput style={styles.input} placeholder={'Email'} placeholderTextColor="#ffc16f" value={email} onChangeText={(text) => setEmail(text)} />
-            </View>
+            <Animated.View style={{ ...styles.emailContainer, marginTop }}>
+              <TextInput
+                style={styles.input}
+                placeholder={'Email'}
+                placeholderTextColor="#ffc16f"
+                value={email}
+                onChangeText={(text) => setEmail(text)}
+              />
+            </Animated.View>
 
             <View style={styles.input}>
               <TextInput
@@ -135,6 +160,7 @@ export default function Sign({ navigation }) {
                 onPress={toggleShowPassword}
               />
             </View>
+
             <View style={styles.buttonContainer}>
               <TouchableOpacity style={styles.button} onPress={() => loginUser()}>
                 <Text style={styles.buttonText}>
@@ -164,8 +190,8 @@ const styles = StyleSheet.create({
     marginLeft: 10,
   },
   emailContainer: {
-    marginTop: 25,
-    marginBottom: 30,
+    marginTop: verticalScale(20),
+    marginBottom: verticalScale(20),
   },
   loginText: {
     color: '#FF6F61',
@@ -175,8 +201,7 @@ const styles = StyleSheet.create({
     fontWeight: '400',
   },
   inputContainer: {
-    marginTop: verticalScale(50),
-    alignItems: 'center'
+    alignItems: 'center',
   },
   input: {
     display: 'flex',
@@ -218,7 +243,7 @@ const styles = StyleSheet.create({
     color: '#FF9F1C'
   },
   buttonContainer: {
-    marginTop: 30,
+    marginTop: verticalScale(30),
   },
   iconBack: {
     position: "absolute",

@@ -20,12 +20,8 @@ export default function FriendList() {
   const navigation = useNavigation();
   const [key, setKey] = useState(0); // Add a key state
   const [loading, setLoading] = useState(false);
-  const [friendList, setFriendList] = useState([
-    {userInfo: {preferences: {name: "", imageUrl: ""}}}
-  ]);
-  const [requestList, setRequestList] = useState([
-    {userInfo: {preferences: {name: "", imageUrl: ""}}, friendshipId:""}
-  ]);
+  const [friendList, setFriendList] = useState([]);
+  const [requestList, setRequestList] = useState([]);
   const [isRequestSectionCollapsed, setIsRequestSectionCollapsed] = useState(true);
 
   useFocusEffect(
@@ -46,6 +42,8 @@ export default function FriendList() {
   };
 
   async function getFriends() {
+    console.log("mazhar", user)
+
     setLoading(true)
     const res = await fetch('https://test-socket-ffe88ccac614.herokuapp.com/.netlify/functions/index/friendship/getFriends', {
       method: 'POST',
@@ -130,6 +128,7 @@ export default function FriendList() {
             numColumns={3}
             style={{paddingHorizontal: 5}}
             renderItem={({ item }) => (
+              console.log("item", item),
               <TouchableOpacity style={styles.item} onPress={()=>{navigation.navigate('OthersProfile', { searcherId:user.userId, searchedId:item.userInfo._id, friendshipId:item.friendshipId})}}>
                 <Image source={{ uri: item.userInfo.preferences.imageUrl }} style={styles.image} resizeMode="cover"/>
                 {/*<View style={{ width: "100%", height: 145, borderWidth: 2, borderRadius: 8, backgroundColor: "#FF9F1C46", borderColor: "#FF9F1C" }}>
@@ -140,7 +139,7 @@ export default function FriendList() {
                   </View>
 
                   <View style={styles.itemCardButtonView}>
-                    <TouchableOpacity onPress={() => { console.log("click") }}>
+                    <TouchableOpacity onPress={()=>{navigation.navigate('Chat', { user1:{userId:user.userId, userName:user.preferences.name}, user2:{senderId:item.userInfo._id, senderName:item.userInfo.preferences.name}})}}>
                       <MessageBox />
                     </TouchableOpacity>
                   </View>

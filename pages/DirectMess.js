@@ -1,4 +1,4 @@
-import { StyleSheet, Text, View, TextInput, TouchableOpacity, ScrollView, Alert, FlatList } from 'react-native';
+import { StyleSheet, Text, View, TextInput, TouchableOpacity, ScrollView, Alert, FlatList, Image } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import {useState,useEffect} from 'react';
 import { useAuth } from '../authContext/AuthContext';
@@ -11,6 +11,25 @@ const AlertDialog = (title,message) =>
 Alert.alert(title, message, [
   {text: 'OK', onPress: () => console.log('OK Pressed')},
 ]);
+
+const TimeDisplay = (time) => {
+  // Create a Date object
+  const date = new Date(time);
+
+  // Get the hours and minutes
+  const hours = date.getUTCHours() + 3; // Use getHours() if the timestamp is in local time
+  const minutes = date.getUTCMinutes(); // Use getMinutes() if the timestamp is in local time
+
+  // Format hours and minutes to always show two digits
+  const formattedHours = hours.toString().padStart(2, '0');
+  const formattedMinutes = minutes.toString().padStart(2, '0');
+
+  // Combine hours and minutes
+  const formattedTime = `${formattedHours}:${formattedMinutes}`;
+
+  return formattedTime
+
+}
 
 export default function DirectMessage(){
     const { user, receiveMessage } = useAuth();
@@ -66,19 +85,17 @@ export default function DirectMessage(){
 
                             result2.userList.forEach((data)=>{
                               if(data._id == elm){
-                                TempDmList[index].senderName = data.name
+                                TempDmList[index].senderName = data.preferences.name
                                 TempDmList[index].senderId = data._id
+                                TempDmList[index].imageUrl = data.preferences.imageUrl
+
                             }
                             })
                         }
                     })
                   })
-
                   console.log("TempDmList",TempDmList)
                   setUsersInfo(TempDmList)
-
-
-
 
                 }
                 else{
@@ -125,12 +142,18 @@ export default function DirectMessage(){
                     numColumns={2}
                     keyExtractor={(item) => item._id}
                     renderItem={({ item }) => (
-                      <TouchableOpacity style={styles.listItem} onPress={()=>{navigation.navigate('Chat', { user1:user, user2:item})}}>
-                        <View style={{borderRadius:40, backgroundColor:"#36454F", width:50, height:50, marginLeft:8}}></View>
-                        <View style={{marginLeft:8, width:"80%"}}>
+                      console.log("item34", usersInfo),
+                      <TouchableOpacity style={styles.listItem} onPress={()=>{navigation.navigate('Chat', { user1:{userId:user.userId, userName:user.preferences.name}, user2:item})}}>
+                        <Image source={{ uri: item.imageUrl }} style={styles.image} resizeMode="cover"/>
+                        <View style={{width:"80%"}}>
                           <View style={{ flexDirection:"row", marginBottom:8, justifyContent: 'space-between'}}>
-                              <Text style={{fontFamily: 'ArialRoundedMTBold', fontSize: 15, fontWeight: '400'}}>{item.senderName}</Text>
-                              <Text style={{paddingTop:2, textAlign: 'right', fontFamily: 'ArialRoundedMTBold', fontSize: 13, fontWeight: '100'}}>18.30</Text>
+                              <Text style={{fontFamily: 'ArialRoundedMTBold', fontSize: 15, fontWeight: '400'}}>
+                                {item.senderName}
+                              </Text>
+                              <Text style={{textAlign: 'right', fontFamily: 'ArialRoundedMTBold', 
+                                            fontSize: 13, fontWeight: '100'}}>
+                                {TimeDisplay(item.latestMessageDate)}
+                              </Text>
                           </View>
                           <Text style={{fontFamily: 'ArialRoundedMTBold', fontSize: 12, fontWeight: '300'}}>
                           {item.latestMessage}
@@ -195,7 +218,8 @@ const styles = StyleSheet.create({
     borderColor:"#E69400",
     borderRadius:20,
     padding: 5,
-    marginVertical:4
+    marginVertical:4,
+    width:"100%",
   },
     titleContainer:{
         borderBottomColor: '#F6F4EB',
@@ -234,5 +258,11 @@ const styles = StyleSheet.create({
       top: 0,
       margin:verticalScale(50),
       zIndex:5
+    },
+    image: {
+      width: 50, 
+      height: 50,
+      borderRadius: 25,
+      marginHorizontal:8
     },
 });

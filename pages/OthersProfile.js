@@ -156,10 +156,10 @@ export default function OthersProfile(){
 
         const data = await response.json()
 
-        console.log("rejectFriend",data.friendshipUpdated)
+        console.log("rejectFriend",data)
 
-        if (response.status === 200 && data.friendshipUpdated.status === "confirmed") {
-            setFriendRequestStatus("no relation")
+        if (response.status === 200 && data === "friendship deleted") {
+            setFriendRequestStatus("No relation")
         }  else { 
             AlertDialog("Error",data.error)
         }

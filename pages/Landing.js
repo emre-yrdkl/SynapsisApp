@@ -89,12 +89,12 @@ const styles = StyleSheet.create({
     },
     logoContainerTall:{
         alignSelf: 'center',
-        marginTop: verticalScale(50),
+        marginTop: verticalScale(60),
         zIndex:2
     },
     logoContainerShort:{
       alignSelf: 'center',
-      marginTop: verticalScale(30),
+      marginTop: verticalScale(60),
       zIndex:2
   },
     svg:{
@@ -150,7 +150,7 @@ const styles = StyleSheet.create({
         fontWeight: '400',
     },
     buttonsContainer:{
-        marginTop: verticalScale(150)
+        marginTop: verticalScale(110)
     },
     
   passwordView:{

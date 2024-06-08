@@ -9,6 +9,8 @@ import { MaterialCommunityIcons } from '@expo/vector-icons';
 import MessageBox from '../svg/messageBox';
 import LeaveArrow from '../svg/leaveArrow';
 import { useNavigation } from '@react-navigation/native';
+import GoBackSvgWhite from '../svg/goBackWhite';
+import GoBackSvgWhiteSmall from '../svg/goBackWhiteSmall';
 
 
 const AlertDialog = (title,message) =>
@@ -18,32 +20,21 @@ Alert.alert(title, message, [
 
 export default function Place(){
 
-    const { user, socket, receiveMessage, setCheckInPlace, roomId, receiveUserList } = useAuth();
-    const [name,setName] = useState("")
-    const [email,setEmail] = useState("")
-    const [key, setKey] = useState(0); // Add a key state
-    
     const navigation = useNavigation();
+    const { user, socket, receiveMessage, setCheckInPlace, placeName ,roomId, receiveUserList, displayedMessages } = useAuth();
 
+    const [currentMessage, setCurrentMessage] = useState({});
 
-    useEffect(()=>{
-        console.log("receiveUserList",receiveUserList)
-
-        console.log("receiveMessage",receiveMessage)
-        showNotification()
-    },[receiveMessage])
+    useEffect(() => {
+        if (receiveMessage && displayedMessages !== receiveMessage.content+receiveMessage.dmId) {
+        setCurrentMessage(receiveMessage);
+        }
+    }, [receiveMessage, displayedMessages]);
 
     const leavePlace = () =>{
         socket.emit("leavePlace",{placeId:roomId})
         setCheckInPlace(false)
     }
-
-
-    const showNotification = () => {
-    // Update the message with a unique key every time
-    setKey(prevKey => prevKey + 1); // Increment key to force re-render
-    };
-    
 
     return(
         <View style={styles.container}>
@@ -51,23 +42,25 @@ export default function Place(){
             {
             height > 700 ?
             <>
-                <TouchableOpacity style={{borderWidth:2, marginTop:48, marginLeft:24}} onPress={leavePlace}>
-                        <Text>
+                <TouchableOpacity style={styles.leaveButtonTall} onPress={leavePlace}>
+                        <GoBackSvgWhiteSmall />
+                        <Text style={styles.leaveText}>
                             Leave
                         </Text>
                 </TouchableOpacity>
-                {/*style={styles.leaveButtonTall}<View style={styles.nameContainerTall}>
-                <NameOtherSvg/>
-            </View>*/}
+                <View style={styles.nameContainerTall}>
+                    <NameOtherSvg/>
+                </View>
             </>
 
             :
             <>
                 <TouchableOpacity style={styles.leaveButtonShort} onPress={leavePlace}>
-                    <LeaveArrow />
-                        <Text style={styles.leaveText}>
-                            Leave
-                        </Text>
+                    <GoBackSvgWhiteSmall />
+
+                    <Text style={styles.leaveText}>
+                        Leave
+                    </Text>
                 </TouchableOpacity>
                 <View style={styles.nameContainerShort}>
                 <NameOtherSvg/>
@@ -75,65 +68,35 @@ export default function Place(){
             </>
             }
 
-            {/*<View style={styles.storyView}>
-                <View style={{marginVertical:13, marginHorizontal:5, flexDirection:"row"}}>
-                    
-                    <View style={{width:60, height:60, backgroundColor:"#FF6F61", borderRadius:30, justifyContent: 'center', alignItems: 'center'}}>
-                        <Text style={{fontSize:30, color:"#fff", fontWeight:"600"}}>
-                            +
-                        </Text>
-                    </View>
-
-                    <View style={{width:62, height:62, marginLeft:15, backgroundColor:"#36454F", borderWidth:4, borderRadius:40, borderColor: "#FF6F61",
-                    justifyContent: 'center', alignItems: 'center'}}>
-                    </View>
-
-                    <View style={{width:62, height:62, marginLeft:15, backgroundColor:"#36454F", borderWidth:4, borderRadius:40, borderColor: "#FF6F61",
-                    justifyContent: 'center', alignItems: 'center'}}>
-                    </View>
-
-                    <View style={{width:62, height:62, marginLeft:15, backgroundColor:"#36454F", borderWidth:4, borderRadius:40, borderColor: "#FF6F61",
-                    justifyContent: 'center', alignItems: 'center'}}>
-                    </View>
-
-                    <View style={{width:62, height:62, marginLeft:15, backgroundColor:"#36454F", borderWidth:4, borderRadius:40, borderColor: "#FF6F61",
-                    justifyContent: 'center', alignItems: 'center'}}>
-                    </View>
-
-                    <View style={{position:"relative", zIndex:5}}>
-                        <MaterialCommunityIcons 
-                        name="arrow-right"
-                        size={28} 
-                        color="#aaa"
-                    /> 
-                    </View>
-                </View>
-                    
-            </View>*/}
-
-            <View style={styles.activePeopleView}>
-                    <Text style={styles.activePeopleText}>
-                        Active People
-                    </Text>
-            </View>
+            <Text style={styles.placeText}>
+                {placeName}
+            </Text>
 
             <View style={styles.listView}>
+                {
+                    receiveUserList.length == 1 &&
+                    <Text style={{textAlign:"center", marginTop:10, fontFamily: 'ArialRoundedMTBold', 
+                                    fontSize: 20, color:"#E69400"}}>
+                        No one is here
+                    </Text>
+                }
 
-            {receiveUserList.length > 0 &&
+            {receiveUserList.length > 1 &&
+            
                 <FlatList
                     data={receiveUserList.filter((item) => item.userId !== user.userId)}
                     keyExtractor={item => item.userId}
                     numColumns={3}
                     style={{paddingHorizontal: 5}}
                     renderItem={({ item }) => (
-                        console.log("itememre",item), // Add a comma here
+                        console.log("iteeeem",item),
                         <TouchableOpacity style={styles.item} onPress={()=>{navigation.navigate('OthersProfile', { searcherId:user.userId, searchedId:item.userId, friendshipId:item.friendshipId})}}>
-                        <Image source={{ uri: item.preferences.imageUrl }} style={styles.image} resizeMode="cover"/>
+                        <Image source={{ uri: item.preferences?.imageUrl }} style={styles.image} resizeMode="cover"/>
                         {/*<View style={{ width: "100%", height: 145, borderWidth: 2, borderRadius: 8, backgroundColor: "#FF9F1C46", borderColor: "#FF9F1C" }}>
                         </View>*/}
                         <View style={styles.itemCardView}>
                         <View style={styles.itemCardTextView}>
-                            <Text style={styles.ItemCardText}>{item.preferences.name}</Text>
+                            <Text style={styles.ItemCardText}>{item.preferences?.name}</Text>
                         </View>
 
                         </View>
@@ -143,74 +106,56 @@ export default function Place(){
             }
             </View>
 
-{/*
-            <View>
-            {
-                receiveUserList.map((data)=>{
-                    return  <Text>
-                                {data.userName}
-                            </Text>
-                })
-            }
-        </View>
-        <View style={styles.infoContainer}>
-            <View style={styles.nameContainer}>
-                <TouchableOpacity onPress={leavePlace}>
-                    <Text>
-                        Leave
-                    </Text>
-                </TouchableOpacity>
-            </View>
-        </View> 
-        
-        */
-}
-
-            <Notification key={key} message={receiveMessage} />
+            <Notification message={currentMessage} />
         </View>
     )    
 }
 
 const styles = StyleSheet.create({
     container: {
+        flex: 1,
     },
     nameContainerShort:{
-        alignSelf: 'center',
-        margin:verticalScale(40),
-    },
-    nameContainerTall:{
         position:"absolute",
-        marginHorizontal:verticalScale(20),
-        marginVertical:verticalScale(50),
-        paddingHorizontal:6,
-        paddingVertical:6,
-        borderRadius:10,
-        backgroundColor:"#FF6F61",
-        flexDirection:"row",
-        alignItems: 'center',
-        justifyContent: 'center',
-    },
+        alignSelf: 'center',
+        top: 0,
+        margin:verticalScale(40),
+        zIndex:5
+      },
+      nameContainerTall:{
+        position:"absolute",
+        alignSelf: 'center',
+        top: 0,
+        margin:verticalScale(50),
+        zIndex:5
+      },
     leaveButtonShort:{
         position:"absolute",
         marginHorizontal:verticalScale(10),
-        marginVertical:verticalScale(30),
-        paddingHorizontal:6,
-        paddingVertical:6,
+        marginVertical:verticalScale(40),
+        paddingHorizontal:4,
+        paddingVertical:4,
         borderRadius:10,
-        backgroundColor:"#FF6F61",
+        backgroundColor:"#FF9F1C",
         flexDirection:"row",
         alignItems: 'center',
         justifyContent: 'center',
     },
     leaveButtonTall:{
         position:"absolute",
-        margin:verticalScale(50),
-        padding:3,
-        borderWidth:2
+        marginHorizontal:verticalScale(10),
+        marginVertical:verticalScale(50),
+        paddingHorizontal:4,
+        paddingVertical:4,
+        borderRadius:10,
+        backgroundColor:"#FF9F1C",
+        flexDirection:"row",
+        alignItems: 'center',
+        justifyContent: 'center',
     },
     leaveText:{
         fontSize:moderateScale(20),
-        marginLeft:5,
+        marginLeft:8,
         fontFamily: 'ArialRoundedMTBold',
         color:"#fefefe"
     },
@@ -219,26 +164,21 @@ const styles = StyleSheet.create({
         borderBottomRightRadius: 10,
         backgroundColor:"#FF9F1C66"
     },
-    activePeopleText:{
-        fontSize:moderateScale(30),
-        fontFamily:"ArialRoundedMTBold",
-        fontWeight:"600",
+    placeText:{
         color:"#FF6F61",
-        textAlign:"center"
-    },
-    activePeopleView:{
-        marginTop:verticalScale(40)
+        fontFamily:"ArialRoundedMTBold",
+        fontSize:30,
+        marginTop:verticalScale(120),
+        textAlign:"center",
     },
     listView:{
-        width:"100%",
         borderWidth:2,
         borderColor:"#FF9F1C",
-        marginTop:verticalScale(20),
-        paddingHorizontal:verticalScale(5),
-        paddingVertical:verticalScale(10),
-        borderTopLeftRadius:10,
-        borderTopRightRadius:10,
-        height:400
+        borderTopLeftRadius: 25,
+        borderTopRightRadius: 25,
+        backgroundColor: '#fff5e8',
+        marginTop:8,
+        height:height - verticalScale(225),
     },
     item: {
         alignItems: 'center',

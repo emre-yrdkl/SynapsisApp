@@ -10,7 +10,8 @@ import * as ImagePicker from 'expo-image-picker';
 import axios from 'axios';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import { useRoute } from '@react-navigation/native';
-
+import { useNavigation } from '@react-navigation/native';
+import GoBackSvg from '../svg/goBackOrange';
 const AlertDialog = (title,message) =>
 Alert.alert(title, message, [
   {text: 'OK', onPress: () => console.log('OK Pressed')},
@@ -21,15 +22,24 @@ const api_key = "bd11fa2ede77feb1dde0bdc20ea88bf5"
 
 export default function OthersProfile(){
 
-    const { user, socket, receiveMessage } = useAuth();
-    const [key, setKey] = useState(0); // Add a key state
+    const navigation = useNavigation();
+
+    const { user, socket, receiveMessage, displayedMessages } = useAuth();
     const [userInfo, setUserInfo] = useState({})
     const [FriendRequestStatus, setFriendRequestStatus] = useState("")
     const [loading, setLoading] = useState(true)
     const [friendshipId, setFriendshipId] = useState("")
+    const [currentMessage, setCurrentMessage] = useState({});
+
     const route = useRoute();
 
     const {searcherId, searchedId} = route.params;
+
+    useEffect(() => {
+        if (receiveMessage && displayedMessages !== receiveMessage.content+receiveMessage.dmId) {
+        setCurrentMessage(receiveMessage);
+        }
+    }, [receiveMessage, displayedMessages]);
 
     function calculateAge(birthDateString) {
         const birthDate = new Date(birthDateString);
@@ -73,15 +83,6 @@ export default function OthersProfile(){
 			AlertDialog("Error",data.error)
 		}
 	}
-
-    useEffect(()=>{
-        showNotification()
-    },[receiveMessage])
-
-    const showNotification = () => {
-    // Update the message with a unique key every time
-    setKey(prevKey => prevKey + 1); // Increment key to force re-render
-    };   
 
     const addToFriend = async () => {
         
@@ -182,7 +183,10 @@ export default function OthersProfile(){
             </View>
         }
 
-        
+        <TouchableOpacity style={{position:"absolute", top:verticalScale(26), left:horizontalScale(4), zIndex:5, paddingVertical:12, paddingHorizontal:16}} onPress={() => navigation.goBack()}>
+            <GoBackSvg />
+        </TouchableOpacity>
+
 
         {loading && 
             <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
@@ -195,7 +199,7 @@ export default function OthersProfile(){
                 <Text style={styles.title}>{userInfo.preferences.name }'s Profile</Text>
                 <View style={styles.containerUserList}>
                     <ScrollView style={{ flex: 1 }}>
-                        <View style={{padding:20}}>
+                        <View style={{padding:12}}>
                             <View style={{flexDirection:"row", marginTop:10}}>
                                 <View style={styles.imageView}>
                                     <Image
@@ -277,7 +281,8 @@ export default function OthersProfile(){
             </>
         )}
 
-        <Notification key={key} message={receiveMessage} />
+        <Notification message={currentMessage} />
+
         </View>
     )    
 }
@@ -301,20 +306,20 @@ const styles = StyleSheet.create({
         zIndex:5
       },
       title:{
-        color:"#E69400",
+        color:"#FF6F61",
         fontFamily:"ArialRoundedMTBold",
-        fontSize:35,
-        marginTop:verticalScale(100),
+        fontSize:30,
+        marginTop:verticalScale(120),
         textAlign:"center",
       },
       containerUserList:{
         borderWidth:2,
-        borderColor:"#E69400",
+        borderColor:"#FF9F1C",
         borderTopLeftRadius: 25,
         borderTopRightRadius: 25,
-        backgroundColor: '#F5F5F5',
+        backgroundColor: '#fff5e8',
         marginTop:8,
-        height:height- verticalScale(200),
+        height:height - verticalScale(165),
       },
       imageView:{
         borderRadius:10, 

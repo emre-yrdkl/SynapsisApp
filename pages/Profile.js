@@ -1,6 +1,6 @@
-import { StyleSheet, Text, View, TextInput, TouchableOpacity, ScrollView, Alert, Image  } from 'react-native';
+import { StyleSheet, Text, View, TextInput, TouchableOpacity, ScrollView, Alert, Image, Modal, Pressable, Button  } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import {useState,useEffect, useCallback} from 'react';
+import {useState,useEffect, useCallback, useContext} from 'react';
 import { useAuth } from '../authContext/AuthContext';
 import Notification from '../items/Notification';
 import * as Progress from 'react-native-progress';
@@ -9,7 +9,8 @@ import NameOtherSvg from '../svg/nameOtherPages';
 import * as ImagePicker from 'expo-image-picker';
 import axios from 'axios';
 import DateTimePicker from '@react-native-community/datetimepicker';
-
+import { CommonActions } from '@react-navigation/native';
+import { useNavigation } from '@react-navigation/native';
 
 const AlertDialog = (title,message) =>
 Alert.alert(title, message, [
@@ -19,12 +20,13 @@ Alert.alert(title, message, [
 const api_key = "bd11fa2ede77feb1dde0bdc20ea88bf5"
 
 
-export default function Profile(){
+export default function Profile({navigation}){
 
-    const { user, socket, receiveMessage } = useAuth();
+    const { user, socket, receiveMessage, displayedMessages, markMessageAsDisplayed } = useAuth();
     const [key, setKey] = useState(0); // Add a key state
     const [userInfo, setUserInfo] = useState({})
     const [loading, setLoading] = useState(true)
+    const [modalVisible, setModalVisible] = useState(false);
 
     const [loadingImage, setLoadingImage] = useState(false)
 
@@ -36,11 +38,15 @@ export default function Profile(){
     const [editBio, setEditBio] = useState("")
     const [editDate, setEditDate] = useState(new Date())
 
-    const interests = [
-        'Running', 'Soccer', 'Art', 'Make-up', 'Photography', 'Singing',
-        'Concert', 'Theater', 'Bars', 'Video games', 'Cooking', 'Drama',
-        'Comedy', 'Fantasy', 'Anime', 'Manga', 'Mystery',
-    ]
+    const interests = ['Football', 'Basketball', 'Tennis', 'Cricket', 'Swimming', 'Rock', 'Pop', 'Classical', 'Jazz', 'Hip-hop', 'Action', 'Comedy', 'Drama', 'Sci-Fi', 'Documentary', 'Fiction', 'Romance', 'Mystery', 'Fantasy', 'Horror', 'Cooking', 'Gardening', 'Photography', 'Painting', 'Traveling']
+
+    const [currentMessage, setCurrentMessage] = useState({});
+
+    useEffect(() => {
+        if (receiveMessage && displayedMessages !== receiveMessage.content+receiveMessage.dmId) {
+        setCurrentMessage(receiveMessage);
+        }
+    }, [receiveMessage, displayedMessages]);
 
     function calculateAge(birthDateString) {
         const birthDate = new Date(birthDateString);
@@ -83,6 +89,7 @@ export default function Profile(){
 	}
 
     const onClickEdit = () => {
+
         setEditName(userInfo.preferences.name)
         setEditBio(userInfo.preferences.bio)
         setEditInterests(userInfo.preferences.interests)
@@ -185,15 +192,6 @@ export default function Profile(){
       };
 
     useEffect(()=>{
-        showNotification()
-    },[receiveMessage])
-
-    const showNotification = () => {
-    // Update the message with a unique key every time
-    setKey(prevKey => prevKey + 1); // Increment key to force re-render
-    };   
-
-    useEffect(()=>{
         getUserInfo()
     },[])
 
@@ -210,17 +208,19 @@ export default function Profile(){
             </View>
         }
 
-        <Text style={styles.title}>Your Profile</Text>
-
         {loading && 
             <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
                 <Image source={require('../assets/gifs/loading.gif')} style={{width:250, height:250}}/>
             </View>
         }
+
         {editTrigger || userInfo.preferences && (
+            <>
+                <Text style={styles.title}>Your Profile</Text>
+
                 <View style={styles.containerUserList}>
                     <ScrollView style={{ flex: 1 }}>
-                        <View style={{padding:20}}>
+                        <View style={{padding:12}}>
                             <View style={{flexDirection:"row", marginTop:10}}>
                                 <View style={styles.imageView}>
                                     <Image
@@ -241,9 +241,16 @@ export default function Profile(){
                                         }    */}
                                     </View>
                                     <View style={styles.buttonView}>
-                                        <TouchableOpacity style={styles.button} onPress={onClickEdit}>
+                                        <View style={{flex:3, justifyContent: 'flex-end', marginRight:4}}>
+                                        <TouchableOpacity style={styles.buttonEdit} onPress={onClickEdit}>
                                             <Text style={styles.buttonText}>Edit Profile</Text>
                                         </TouchableOpacity>
+                                        </View>
+                                        <View style={{flex:2, justifyContent: 'flex-end',}}>
+                                        <TouchableOpacity style={styles.buttonSignOut} onPress={() => setModalVisible(true)}>
+                                            <Text style={styles.buttonText}>Sign Out</Text>
+                                        </TouchableOpacity>
+                                        </View>
                                     </View>
                                 </View>
                             </View>
@@ -273,14 +280,19 @@ export default function Profile(){
                         </View>
                     </ScrollView>
                 </View>
+                </>
         )}
 
         {
             editTrigger &&
             (
+            <>
+            
+            <Text style={styles.title}>Your Profile</Text>
+
             <View style={styles.containerUserList}>
                 <ScrollView style={{ flex: 1 }}>
-                    <View style={{padding:20}}>
+                    <View style={{padding:12}}>
                         <View style={{flexDirection:"row", marginTop:10}}>
                             {
                                 loadingImage &&
@@ -377,18 +389,116 @@ export default function Profile(){
                     </View>
                 </ScrollView>
             </View>
+            </>
+
             )
         }
+        <Modal
+        animationType="slide"
+        transparent={true}
+        visible={modalVisible}
+        onRequestClose={() => {
+          Alert.alert('Modal has been closed.');
+          setModalVisible(!modalVisible);
+        }}>
+        <View style={styles.centeredView}>
+          <View style={styles.modalView}>
+            <Text style={styles.modalText}>Are you sure you want to log out?</Text>
+            <View style={{marginTop:16}}>
 
-        <Notification key={key} message={receiveMessage} />
+            <View style={{flexDirection:"row", justifyContent:"space-between"}}>
+
+            <TouchableOpacity
+                style={[styles.button, styles.buttonYes]}
+                onPress={() => {
+                    try {
+                        setModalVisible(!modalVisible)
+                        setTimeout(() => {
+                            navigation.reset({
+                                index: 0,
+                                routes: [{ name: 'Landing' }],
+                              })
+                          }, 1000);
+                        
+                    } catch (error) {
+                        console.error("Error resetting navigation:", error);
+                        AlertDialog("Error", "An error occurred while trying to navigate.");
+                    }
+                }}>
+                <Text style={styles.textStyle}>Yes</Text>
+            </TouchableOpacity>
+            <Pressable
+                style={[styles.button, styles.buttonNo]}
+                onPress={() => setModalVisible(!modalVisible)}>
+                <Text style={styles.textStyle}>No</Text>
+            </Pressable>
+            </View>
+
+            </View>
+          </View>
+        </View>
+      </Modal>
+
+
+      <Notification message={currentMessage} />
         </View>
     )    
 }
 
 const styles = StyleSheet.create({
     container: {
-    flex: 1,
+        flex: 1,
     },
+    centeredView: {
+        flex: 1,
+        justifyContent: 'center',
+        alignItems: 'center',
+        marginTop: 22,
+      },
+      modalView: {
+        margin: 20,
+        backgroundColor: 'white',
+        borderRadius: 10,
+        padding: 32,
+        alignItems: 'center',
+        shadowColor: '#000',
+        shadowOffset: {
+          width: 0,
+          height: 2,
+        },
+        shadowOpacity: 0.25,
+        shadowRadius: 4,
+        elevation: 5,
+      },
+      button: {
+        borderRadius: 20,
+        paddingVertical: 10,
+        paddingHorizontal:24,
+        marginHorizontal:12,
+        elevation: 2,
+      },
+      buttonOpen: {
+        backgroundColor: '#F194FF',
+      },
+      buttonYes: {
+        backgroundColor: '#FFABAB',
+      },
+      buttonNo: {
+        backgroundColor: '#3CCC7A',
+      },
+      textStyle: {
+        color: 'white',
+        fontWeight: 'bold',
+        textAlign: 'center',
+        fontFamily:"ArialRoundedMTBold",
+      },
+      modalText: {
+        marginBottom: 15,
+        textAlign: 'center',
+        fontFamily:"ArialRoundedMTBold",
+        fontSize:16,
+      },
+
     nameContainerShort:{
         position:"absolute",
         alignSelf: 'center',
@@ -404,20 +514,20 @@ const styles = StyleSheet.create({
         zIndex:5
       },
       title:{
-        color:"#E69400",
+        color:"#FF6F61",
         fontFamily:"ArialRoundedMTBold",
-        fontSize:35,
-        marginTop:verticalScale(100),
+        fontSize:30,
+        marginTop:verticalScale(120),
         textAlign:"center",
       },
       containerUserList:{
         borderWidth:2,
-        borderColor:"#E69400",
+        borderColor:"#FF9F1C",
         borderTopLeftRadius: 25,
         borderTopRightRadius: 25,
-        backgroundColor: '#F5F5F5',
+        backgroundColor: '#fff5e8',
         marginTop:8,
-        height:height- verticalScale(200),
+        height:height - verticalScale(225),
       },
       imageView:{
         borderRadius:10, 
@@ -452,7 +562,7 @@ const styles = StyleSheet.create({
     },
     informationView:{
         flex:3,
-        marginLeft:15, 
+        marginLeft:8, 
         backgroundColor:"#E6940025", 
         borderRadius:10, 
         paddingHorizontal:10,
@@ -477,7 +587,7 @@ const styles = StyleSheet.create({
     buttonView:{
         flex: 1, 
         justifyContent: 'flex-end',
-        width: '100%',
+        flexDirection:"row",
     },
     buttonViewEdit:{
         flex: 1, 
@@ -485,12 +595,19 @@ const styles = StyleSheet.create({
         flexDirection:"row",
         width: '100%',
     },
-    button:{
+    buttonEdit:{
         marginTop: verticalScale(30), 
         marginBottom:verticalScale(15) ,
         backgroundColor: "#4F9DFF", 
-        padding: 10, 
-        borderRadius: 10
+        paddingVertical:10,
+        borderRadius: 10,
+    },
+    buttonSignOut:{
+        marginTop: verticalScale(30), 
+        marginBottom:verticalScale(15) ,
+        backgroundColor: "#FF6F4F", 
+        paddingVertical:10,
+        borderRadius: 10,
     },
     buttonAccept:{
         marginTop: verticalScale(30), 

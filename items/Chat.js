@@ -1,8 +1,18 @@
 import React, { useEffect, useState, useRef } from "react";
-import { View, Text, TextInput, ScrollView, StyleSheet, TouchableOpacity } from "react-native";
+import { View, Text, TextInput, ScrollView, StyleSheet, TouchableOpacity, KeyboardAvoidingView, Platform, Keyboard  } from "react-native";
 import { useRoute } from '@react-navigation/native';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { useAuth } from '../authContext/AuthContext';
+import GoBackSvgWhite from "../svg/goBackWhite";
+import { horizontalScale, moderateScale, verticalScale, width, height } from '../themes/Metrics';
+
+const generateUniqueId = () => {
+  return 'xxxxxxxxyxxx'.replace(/[xy]/g, function(c) {
+    const r = Math.random() * 16 | 0;
+    const v = c === 'x' ? r : (r & 0x3 | 0x8);
+    return v.toString(16);
+  }) + Date.now().toString(16);
+};
 
 
 function Chat({navigation}) {
@@ -10,20 +20,19 @@ function Chat({navigation}) {
   const [currentMessage, setCurrentMessage] = useState("");
   const [messageList, setMessageList] = useState([]);
   const [dmId, setDmId] = useState("")
+
   const scrollViewRef = useRef(); // Create a ref using useRef hook
   const route = useRoute();
   const { user1, user2 } = route.params;
-  
-console.log("user1",user1)
-console.log("user2",user2)
-
 
   const sendMessage = async () => {
     if (currentMessage !== "") {
 
-      socket.emit("send_message", {dmId: dmId, receiverUserId:user2.senderId, senderUserId:user1.userId, senderUserName:user1.userName, content:currentMessage})
+      const uniqueId = generateUniqueId();
 
-      setMessageList([...messageList, {description:currentMessage, author:user1.userId}])
+      socket.emit("send_message", {_id: uniqueId, dmId: dmId, receiverUserId:user2.senderId, senderUserId:user1.userId, senderUserName:user1.userName, content:currentMessage})
+
+      setMessageList([...messageList, {description:currentMessage, author:user1.userId, createdAt:Date.now()}])
 
       console.log("body: ",user1.userId,currentMessage,dmId)
       fetch('https://test-socket-ffe88ccac614.herokuapp.com/.netlify/functions/index/message/sendMessage', {
@@ -50,19 +59,22 @@ console.log("user2",user2)
     }
   };
 
+  const formatTime = (timestamp) => {
+    const date = new Date(timestamp);
+    const hours = date.getHours().toString().padStart(2, '0');
+    const minutes = date.getMinutes().toString().padStart(2, '0');
+    return `${hours}:${minutes}`;
+  };
+  
+
   useEffect(()=>{
     console.log("receiveMessage",receiveMessage)
     if(receiveMessage.dmId == dmId){
-      setMessageList([...messageList, {description:receiveMessage.content, author:receiveMessage.senderUserId}])
+      setMessageList([...messageList, {description:receiveMessage.content, author:receiveMessage.senderUserId, createdAt:Date.now()}])
     }
   },[receiveMessage])
 
   useEffect(() => {
-    console.log("user1",user1)
-    console.log("user2",user2)
-    //setMessageList((list) => [...list, messageData]);
-    
-
     console.log("useeffect",user1,user2)
     fetch('https://test-socket-ffe88ccac614.herokuapp.com/.netlify/functions/index/dm/getDmMessages', {
       method: 'POST',
@@ -92,20 +104,20 @@ console.log("user2",user2)
   }, []);
 
   return (
-    <View style={styles.chatWindow}>
-      <View style={styles.headerView}>
-        <TouchableOpacity style={styles.iconBack} onPress={()=>navigation.replace("Dashboard")}>
-          <MaterialCommunityIcons 
-                  name="arrow-left"
-                  size={28} 
-                  color="#FEFEFE"
-              /> 
+    <KeyboardAvoidingView
+      style={styles.chatWindow}
+      behavior={Platform.OS === "ios" ? "padding" : "height"}
+      keyboardVerticalOffset={0} // Adjust this value as needed
+    >
+      <View style={{...styles.headerView, paddingTop: height>700 ? 36:20}}>
+        <TouchableOpacity style={styles.iconBack} onPress={() => navigation.goBack()}>
+          <GoBackSvgWhite />
         </TouchableOpacity>
         <Text style={styles.headerText}>
           {user2.senderName}
         </Text>
       </View>
-      
+  
       <ScrollView
         style={styles.chatBody}
         ref={scrollViewRef} // Assign the ref here
@@ -123,13 +135,22 @@ console.log("user2",user2)
               <Text style={styles.description}>{messageContent.description}</Text>
             </View>
             <View style={styles.messageMeta}>
-              {/* <Text style={styles.time}>{messageContent.createdAt.slice(11,16)}</Text>  */ }
-              {/* <Text style={styles.author}>{messageContent.author==user1._id? user1.userName: user2.name}</Text> */}
+              {user1.userId === messageContent.author ? (
+                <>
+                <Text style={styles.author}></Text>
+                <Text style={styles.time}>{formatTime(messageContent.createdAt)}</Text>
+                </>
+              ) : (
+                <>
+                <Text style={styles.time}>{formatTime(messageContent.createdAt)}</Text>
+                <Text style={styles.author}></Text>
+                </>
+              )}
             </View>
           </View>
         ))}
       </ScrollView>
-      <View style={styles.chatFooter}>
+      <View style={{...styles.chatFooter, marginBottom:height> 700 ? 12: 4}}>
         <TextInput
           style={styles.input}
           value={currentMessage}
@@ -141,26 +162,31 @@ console.log("user2",user2)
           <Text style={styles.sendButtonText}>Send</Text>
         </TouchableOpacity>
       </View>
-    </View>
+    </KeyboardAvoidingView>
   );
+  
+  
 }
 
 const styles = StyleSheet.create({
   chatWindow: {
-    maxHeight:500,
-    justifyContent: "center",
+    flex: 1, // Ensure the chat window takes the full height
+    justifyContent: "flex-start",
+    backgroundColor: "#fff5e8",
   },
   textHeader:{
     fontSize:20,
     color:"#000"
   },
   chatBody: {
-    padding: 10,
+    paddingHorizontal: 10,
   },
   message: {
-    padding: 10,
-    borderRadius: 20,
-    marginVertical: 5,
+    paddingHorizontal: 12,
+    paddingVertical: 5,
+    borderRadius: 14,
+    marginVertical: 4,
+    maxWidth:"60%"
   },
   myMessage: {
     alignSelf: 'flex-end',
@@ -194,11 +220,10 @@ const styles = StyleSheet.create({
   },
   input: {
     flex: 1,
-    borderWidth: 1,
-    borderColor: '#ddd',
-    padding: 10,
+    padding: 12,
     borderRadius: 10,
     marginRight: 10,
+    backgroundColor: '#fefefe',
   },
   sendButton: {
     justifyContent: 'center',
@@ -215,14 +240,14 @@ const styles = StyleSheet.create({
     alignItems: 'center', // Align items vertically centered
     borderBottomLeftRadius: 15, // Bottom left border radius
     borderBottomRightRadius: 15, // Bottom right border radius
-    height: 99, // Height
     backgroundColor: '#FF9F1C', // Background color
   },
   iconBack:{
-    marginLeft:10,
+    marginLeft:8,
+    padding:16,
   },
   headerText:{
-    marginLeft:20,
+    marginLeft:12,
     fontSize: 20, // Example font size
     fontWeight: 'bold',
     color: '#FEFEFE',

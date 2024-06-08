@@ -7,11 +7,20 @@ const AuthContext = createContext();
 
 export const AuthProvider = ({ children }) => {
     const [user, setUser] = useState(null);
+    const [userId, setUserId] = useState("")
     const [receiveMessage, setReceiveMessage] = useState({})
     const [checkInPlace, setCheckInPlace] = useState(false);
+    const [placeName, setPlaceName] = useState("");
     const [roomId, setRoomId] = useState("");
     const [receiveUserList, setReceiveUserList] = useState([])
     const [socket, setSocket] = useState(null);
+    const [placeExistOrNot, setPlaceExistOrNot] = useState("");
+
+    const [displayedMessages, setDisplayedMessages] = useState("");
+
+    const markMessageAsDisplayed = (messageId) => {
+      setDisplayedMessages(messageId);
+    }
 
     useEffect(() => {
       // Initialize socket connection only once when component mounts
@@ -26,21 +35,41 @@ export const AuthProvider = ({ children }) => {
 
     useEffect(() => {
       if (socket) {
+
         socket.on("receive_message", (data) => {
+
             setReceiveMessage(data);
-            console.log("messageData1", data);
         });
 
-        socket.on("placeUsers", (data) => {
-            setReceiveUserList(data);
-            console.log("users SOCKET: ", data);
+        socket.on("checkPlaceOrNot", async (data) => {
+            
+          console.log("placeExistOrNot SOCKET: ", data);
+          setPlaceExistOrNot(data);
+        });
+
+
+        socket.on("placeUsers", async (data) => {
+
+          const response = await fetch('https://test-socket-ffe88ccac614.herokuapp.com/.netlify/functions/index/place/orderUsers', {
+            method: 'POST',
+            headers: {
+                'Accept': 'application/json',
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                "userId":userId,
+                "users":data
+            })
+          })
+          const result = await response.json()
+
+            setReceiveUserList(result);
         });
       }
-    }, [socket]);
+    }, [socket, userId]);
 
     const signIn = (token, userInfo) => {
       
-        console.log("Ağğğğ",userInfo)
         AsyncStorage.setItem('token', token)//local storage'da token tutuluyor
         setUser(current => ({ ...current, token, ...userInfo }));
         console.log("loooooo", user)
@@ -53,7 +82,6 @@ export const AuthProvider = ({ children }) => {
 
     const setPreferences = (preferences) => {
       setUser(current => ({ ...current, preferences }));
-      
     };
 
     const signOut = () => {
@@ -63,7 +91,9 @@ export const AuthProvider = ({ children }) => {
 
     return (
     <AuthContext.Provider value={{ user, signIn, signOut, socket, receiveMessage, 
-    setLocation, setPreferences, setCheckInPlace, checkInPlace, setRoomId, roomId, receiveUserList }}>
+                                setLocation, setPreferences, setCheckInPlace, checkInPlace, 
+                                setPlaceName, placeName ,setRoomId, roomId, receiveUserList,
+                                setUserId, displayedMessages, markMessageAsDisplayed, placeExistOrNot }}>
         {children}
     </AuthContext.Provider>
     );

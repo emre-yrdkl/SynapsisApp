@@ -22,7 +22,11 @@ export default function Preferences({navigation}) {
   const [selectedInterests, setSelectedInterests] = useState([]);
   const [imageUrl, setImageUrl] = useState('');
   const [loading, setLoading] = useState(false);
-
+  const [errorName, setErrorName] = useState(false);
+  const [errorimage, setErrorImage] = useState(false);
+  const [errorGender, setErrorGender] = useState(false);
+  const [errorInterests, setErrorInterests] = useState(false);
+  const [showDatePicker, setShowDatePicker] = useState(true);
 
   const totalPages = 6;
   
@@ -36,11 +40,14 @@ export default function Preferences({navigation}) {
     { title: "Your Interests", description: "Contact us for more information." },
   ];
 
-  const interests = [
-    'Running', 'Soccer', 'Art', 'Make-up', 'Photography', 'Singing',
-    'Concert', 'Theater', 'Bars', 'Video games', 'Cooking', 'Drama',
-    'Comedy', 'Fantasy', 'Anime', 'Manga', 'Mystery',
-  ]
+  const interests = {
+    Sports: ['Football', 'Basketball', 'Tennis', 'Cricket', 'Swimming'],
+    Music: ['Rock', 'Pop', 'Classical', 'Jazz', 'Hip-hop'],
+    Movies: ['Action', 'Comedy', 'Drama', 'Sci-Fi', 'Documentary'],
+    Books: ['Fiction', 'Romance', 'Mystery', 'Fantasy', 'Horror'],
+    Hobbies: ['Cooking', 'Gardening', 'Photography', 'Painting', 'Traveling']
+  };
+  
 
   const genders = [
     "Man", "Woman", "Non-binary", "Prefer not to say"
@@ -51,6 +58,8 @@ export default function Preferences({navigation}) {
   };
 
   const onChangeDate = (event, selectedDate) => {
+    setShowDatePicker(false)
+    console.log("selectedDate",event)
     const currentDate = selectedDate || date; // Backup to current date if the user cancels
     setDate(currentDate);
   };
@@ -116,6 +125,7 @@ export default function Preferences({navigation}) {
       setLoading(false)
       if(response.status == 200){
         setImageUrl(response.data.data.display_url);
+        setErrorImage(false)
         alert('Image uploaded successfully');
       }
       else{
@@ -132,8 +142,20 @@ export default function Preferences({navigation}) {
     try {
       console.log("userId1",userId, name, date, gender, interests)
 
-      if(name == "" || !date || gender == ""){//bio ve image eklenebilir
-        Alert.alert("Error","Please fill all the fields")
+      if(name == ""){
+        scrollToPage(0)
+        setErrorName(true)
+      }
+      else if(image == ""){
+        scrollToPage(2)
+        setErrorImage(true)
+      }
+      else if(gender == ""){
+        scrollToPage(4)
+        setErrorGender(true)
+      }
+      else if(interests.length == 0){
+        setErrorInterests(true)
       }
       else{
         console.log("userId",userId, name, date, gender, interests)
@@ -184,28 +206,37 @@ export default function Preferences({navigation}) {
                   return (
                     <View key={index} style={styles.containerName}>
                     <Text style={styles.titleName}>{content.title}</Text>
-                    <TextInput
-                      style={styles.inputName}
-                      onChangeText={setName}
-                      value={name}
-                      placeholder="Name"
-                    />
+
+                    <View style={styles.inputView}>
+                      <TextInput
+                        style={styles.inputName}
+                        onChangeText={(text)=>{setName(text) ; if(text.length>0){setErrorName(false)}}}
+                        value={name}
+                        placeholder="Name"
+                      />
+                      {errorName && <Text style={{color: 'red', marginTop:4}}>*Please enter your name</Text>}
+
+                    </View>
+                    
                     </View>
                   );
               } else if (index === 1) {
                   return (
                   <View key={index} style={styles.containerName}>
                     <Text style={styles.titleName}>{content.title}</Text>
-                  
+                  {
+                    showDatePicker &&
                     <DateTimePicker
                       testID="dateTimePicker"
                       value={date}
                       mode={'date'}
                       is24Hour={true}
-                      display="default"
+                      display="spinner"
                       onChange={onChangeDate}
                       style={{marginTop: verticalScale(50), marginRight: horizontalScale(20)}}
                     />
+                  }
+                    
                   </View>
                   );
               } else if (index == 2){
@@ -218,6 +249,7 @@ export default function Preferences({navigation}) {
                       paddingVertical:verticalScale(15), borderRadius:10 }} >
                       <Text style={{color: '#FFB366', fontSize: 20}}>{loading? "Loading.." :"Add a photo"}</Text>
                     </TouchableOpacity>
+                    {errorimage && <Text style={{color: 'red', marginTop:4}}>*Please upload an image</Text>}
                     {loading && 
                         <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
                             <Image source={require('../assets/gifs/loading.gif')} style={{width:250, height:250}}/>
@@ -254,12 +286,14 @@ export default function Preferences({navigation}) {
                             styles.option,
                             selectedGender === gender ? styles.optionSelected : styles.optionNotSelected
                           ]}
-                          onPress={() => setSelectedGender(gender)}
+                          onPress={() => {setSelectedGender(gender); setErrorGender(false)}}
                         >
                           <Text style={isGenderSelected(gender) ? styles.optionText : styles.optionNotText}>{gender}</Text>
                         </TouchableOpacity>
                       ))}
                     </View>
+                    {errorGender && <Text
+                      style={{color: 'red', marginTop:4}}>*Please select your gender</Text>}
                   </View>
                 );
               }
@@ -267,23 +301,33 @@ export default function Preferences({navigation}) {
                 return (
                   <View key={index} style={styles.containerName}>
                     <Text style={styles.titleName}>{content.title}</Text>
-                    <View style={styles.interestsContainer}>
-                      {interests.map((interest) => (
-                        <TouchableOpacity
-                          key={interest}
-                          style={[
-                            styles.interest,
-                            isInterestSelected(interest) ? styles.interestSelected : styles.interestNotSelected,
-                          ]}
-                          onPress={() => toggleInterest(interest)}
-                        >
-                          <Text style={isInterestSelected(interest) ? styles.interestText : styles.interestNotText}>{interest}</Text>
-                        </TouchableOpacity>
+                    <ScrollView style={styles.scrollView}>
+                      {Object.keys(interests).map((category) => (
+                        <View key={category} style={styles.categoryContainer}>
+                          <Text style={styles.categoryHeader}>{category}</Text>
+                          <View style={styles.interestsContainer}>
+                            {interests[category].map((interest) => (
+                              <TouchableOpacity
+                                key={interest}
+                                style={[
+                                  styles.interest,
+                                  isInterestSelected(interest) ? styles.interestSelected : styles.interestNotSelected,
+                                ]}
+                                onPress={() => { toggleInterest(interest); setErrorInterests(false) }}
+                              >
+                                <Text style={isInterestSelected(interest) ? styles.interestText : styles.interestNotText}>{interest}</Text>
+                              </TouchableOpacity>
+                            ))}
+                          </View>
+                        </View>
                       ))}
-                    </View>
+                    </ScrollView>
+                    {errorInterests && <Text style={{color: 'red', marginTop:4}}>*Please select at least one interest</Text>}
                   </View>
                 );
               }
+              
+              
           }
           
         )}
@@ -382,6 +426,9 @@ const styles = StyleSheet.create({
     fontWeight: "400",
     marginTop: verticalScale(50),
   },
+  inputView: {
+    marginTop: verticalScale(50),
+  },
   inputName:{
     flexDirection: 'row',
     width: horizontalScale(280),
@@ -391,7 +438,6 @@ const styles = StyleSheet.create({
     borderRadius: 10,
     borderWidth: 1,
     borderColor: '#4C4C4C',
-    marginTop: verticalScale(50),
     fontSize: 16,
   },
   item:{
@@ -476,5 +522,27 @@ const styles = StyleSheet.create({
     color: '#FFB366',
     textAlign: 'center',
     fontSize: 16,
+  },
+  categoryContainer: {
+    marginVertical: verticalScale(10),
+    marginHorizontal: horizontalScale(20),
+  },
+  categoryHeader: {
+    color: "#E69400",
+    fontFamily: "ArialRoundedMTBold",
+    fontSize: 24,
+    fontWeight: "400",
+    marginTop: verticalScale(10),
+    marginBottom: verticalScale(5),
+  },
+  interestsContainer: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    justifyContent: 'center',
+    marginBottom: verticalScale(20),
+  },
+  scrollView: {
+    marginTop: verticalScale(20),
+    width: '100%',
   },
 });

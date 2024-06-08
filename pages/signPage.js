@@ -4,6 +4,7 @@ import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { useAuth } from '../authContext/AuthContext';
 import LogoSvg from '../svg/logo';
 import { horizontalScale, verticalScale, height } from '../themes/Metrics';
+import GoBackSvg from '../svg/goBackOrange';
 
 const AlertDialog = (title, message) =>
   Alert.alert(title, message, [
@@ -11,7 +12,7 @@ const AlertDialog = (title, message) =>
   ]);
 
 export default function Sign({ navigation }) {
-  const { signIn, socket, setPreferences } = useAuth();
+  const { signIn, socket, setPreferences, setUserId } = useAuth();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
@@ -79,6 +80,7 @@ export default function Sign({ navigation }) {
         if (res.status == 200) {
           const result = await res.json();
           signIn(result.userToken, result.userInfo);
+          setUserId(result.userInfo.userId);
           socket.emit("setup", { userId: result.userInfo.userId });
           console.log("result.userInfo", result.userInfo);
           const responsePreferences = await fetch('https://test-socket-ffe88ccac614.herokuapp.com/.netlify/functions/index/user/checkPreferences', {
@@ -123,9 +125,12 @@ export default function Sign({ navigation }) {
   }
 
   return (
-    <KeyboardAvoidingView style={styles.container} behavior="padding">
+    <KeyboardAvoidingView style={styles.container} behavior="padding" >
       <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
         <View style={styles.inner}>
+        <TouchableOpacity style={{position:"absolute", top:verticalScale(26), left:horizontalScale(4), zIndex:5, paddingVertical:12, paddingHorizontal:16}} onPress={() => navigation.goBack()}>
+            <GoBackSvg />
+        </TouchableOpacity>
           <Animated.View style={{ alignSelf: 'center', marginTop: verticalScale(50), width: logoSize, height: logoSize }}>
             <LogoSvg style={styles.svg} />
           </Animated.View>
@@ -178,6 +183,7 @@ export default function Sign({ navigation }) {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+    backgroundColor:"#fff5e8",
   },
   inner: {
     flex: 1,
@@ -216,6 +222,8 @@ const styles = StyleSheet.create({
     borderRadius: 10,
     borderWidth: 1,
     borderColor: '#FF9F1C',
+    backgroundColor: "#fff"
+
   },
   inputPass: {
     flex: 1,
@@ -232,7 +240,7 @@ const styles = StyleSheet.create({
     borderRadius: 8,
     borderWidth: 3,
     borderColor: "#FF9F1C",
-    backgroundColor: "#F5F5F5"
+    backgroundColor: "#fff"
   },
   buttonText: {
     textAlign: 'center',

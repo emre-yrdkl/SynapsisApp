@@ -1,13 +1,16 @@
 import React, { useEffect, useState, useRef } from 'react';
-import { View, Text, Animated, StyleSheet, TouchableOpacity } from 'react-native';
+import { View, Text, Animated, StyleSheet } from 'react-native';
+import { useAuth } from '../authContext/AuthContext';
+import { horizontalScale, moderateScale, verticalScale, width, height } from '../themes/Metrics';
 
 const Notification = ({ message }) => {
   const [visible, setVisible] = useState(false);
   const slideAnim = useRef(new Animated.Value(-100)).current; // Initial position off the screen
+  const { user, socket, receiveMessage, markMessageAsDisplayed } = useAuth();
 
   useEffect(() => {
-    // Trigger the slide down and up animation
-    if (Object.keys(message).length != 0) {
+
+    if (Object.keys(message).length !== 0) {
       setVisible(true);
       Animated.sequence([
         Animated.timing(slideAnim, {
@@ -15,7 +18,7 @@ const Notification = ({ message }) => {
           duration: 500,
           useNativeDriver: true,
         }),
-        Animated.delay(3000), // Stay visible for 3 seconds
+        Animated.delay(750), // Stay visible for 3 seconds
         Animated.timing(slideAnim, {
           toValue: -100, // Slide back up
           duration: 500,
@@ -23,6 +26,7 @@ const Notification = ({ message }) => {
         }),
       ]).start(() => {
         setVisible(false); // Hide the component after animation
+        markMessageAsDisplayed(message.content+message.dmId);
       });
     }
   }, [message, slideAnim]);
@@ -35,10 +39,10 @@ const Notification = ({ message }) => {
         styles.container,
         { transform: [{ translateY: slideAnim }] },
       ]}>
-        <Text style={{color: '#fefefe', fontSize:16}}>{message.senderUserName}</Text>
-        <View style={{marginTop:7}}>
-          <Text style={styles.message}>{message.content}</Text>
-        </View>
+      <Text style={{color: '#fefefe', fontSize:16, fontWeight:"600"}}>{message.senderUserName}</Text>
+      <View style={{marginTop:8}}>
+        <Text style={styles.message}>{message.content}</Text>
+      </View>
     </Animated.View>
   );
 };
@@ -46,17 +50,18 @@ const Notification = ({ message }) => {
 const styles = StyleSheet.create({
   container: {
     position: 'absolute',
-    top: 0,
-    left: 0,
-    right: 0,
+    top: height>700? 40 : 10,
+    left: 10,
+    right: 10,
     backgroundColor: '#36454F',
     padding: 12,
     margin:10,
-    borderRadius:8,
+    borderRadius:10,
+    zIndex:5
   },
   message: {
     color: '#fefefe',
-    fontSize: 12,
+    fontSize: 14,
   },
 });
 

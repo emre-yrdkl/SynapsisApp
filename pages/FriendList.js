@@ -7,8 +7,7 @@ import MessageBox from '../svg/messageBox';
 import FriendRequest from '../items/FriendRequest';
 import { useNavigation } from '@react-navigation/native';
 import { useFocusEffect } from '@react-navigation/native';
-
-const { width, height } = Dimensions.get('window');
+import { horizontalScale, moderateScale, verticalScale, width, height } from '../themes/Metrics';
 
 const AlertDialog = (title, message) =>
   Alert.alert(title, message, [
@@ -16,13 +15,23 @@ const AlertDialog = (title, message) =>
   ]);
 
 export default function FriendList() {
-  const { user, socket, receiveMessage } = useAuth();
+  const { user, socket, receiveMessage, displayedMessages } = useAuth();
   const navigation = useNavigation();
   const [key, setKey] = useState(0); // Add a key state
   const [loading, setLoading] = useState(false);
   const [friendList, setFriendList] = useState([]);
   const [requestList, setRequestList] = useState([]);
   const [isRequestSectionCollapsed, setIsRequestSectionCollapsed] = useState(true);
+  const [trigger, setTrigger] = useState(false);
+
+  const [currentMessage, setCurrentMessage] = useState({});
+
+  useEffect(() => {
+      if (receiveMessage && displayedMessages !== receiveMessage.content+receiveMessage.dmId) {
+      setCurrentMessage(receiveMessage);
+      }
+  }, [receiveMessage, displayedMessages]);
+
 
   useFocusEffect(
     useCallback(() => {
@@ -34,15 +43,15 @@ export default function FriendList() {
       return () => {
         console.log('Settings Screen was unfocused');
       };
-    }, [])
+    }, [trigger])
   );
+
 
   const handleToggle = (isCollapsed) => {
     setIsRequestSectionCollapsed(isCollapsed);
   };
 
   async function getFriends() {
-    console.log("mazhar", user)
 
     setLoading(true)
     const res = await fetch('https://test-socket-ffe88ccac614.herokuapp.com/.netlify/functions/index/friendship/getFriends', {
@@ -88,16 +97,6 @@ export default function FriendList() {
   }
 
 
-  useEffect(() => {
-    console.log("receiveMessage", receiveMessage);
-    showNotification();
-  }, [receiveMessage]);
-
-  const showNotification = () => {
-    // Update the message with a unique key every time
-    setKey(prevKey => prevKey + 1); // Increment key to force re-render
-  };
-
   return (
     <View style={styles.container}>
       {height > 700 ?
@@ -120,15 +119,22 @@ export default function FriendList() {
       <Text style={styles.title}>Friend List</Text>
 
       <View style={[styles.containerUserList, isRequestSectionCollapsed ? {} : { height: height - 200 }]}>
-        <FriendRequest onToggle={handleToggle} initialData={requestList} receiverId={user.userId}/>
+        <FriendRequest onToggle={handleToggle} initialData={requestList} receiverId={user.userId} setTrigger={setTrigger} trigger={trigger}/>
+        {
+          friendList.length === 0 &&
+          <View style={{ flex: 1, alignItems: 'center' }}>
+            <Text style={{ color: "#E69400", fontSize: 20, fontFamily: 'ArialRoundedMTBold' }}>
+              You don't have any friends yet
+            </Text>
+          </View>
+        }
         {friendList.length > 0 &&
           <FlatList
             data={friendList}
-            keyExtractor={item => item.userId}
+            keyExtractor={item => item.userInfo._id}
             numColumns={3}
             style={{paddingHorizontal: 5}}
             renderItem={({ item }) => (
-              console.log("item", item),
               <TouchableOpacity style={styles.item} onPress={()=>{navigation.navigate('OthersProfile', { searcherId:user.userId, searchedId:item.userInfo._id, friendshipId:item.friendshipId})}}>
                 <Image source={{ uri: item.userInfo.preferences.imageUrl }} style={styles.image} resizeMode="cover"/>
                 {/*<View style={{ width: "100%", height: 145, borderWidth: 2, borderRadius: 8, backgroundColor: "#FF9F1C46", borderColor: "#FF9F1C" }}>
@@ -152,7 +158,7 @@ export default function FriendList() {
       </>
       }
 
-      <Notification key={key} message={receiveMessage} />
+    <Notification message={currentMessage} />
     </View>
   );
 }
@@ -161,26 +167,26 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
   },
-  nameContainerShort: {
-    position: "absolute",
+  nameContainerShort:{
+    position:"absolute",
     alignSelf: 'center',
     top: 0,
-    margin: 40,
-    zIndex: 5
+    margin:verticalScale(40),
+    zIndex:5
   },
-  nameContainerTall: {
-    position: "absolute",
+  nameContainerTall:{
+    position:"absolute",
     alignSelf: 'center',
     top: 0,
-    margin: 50,
-    zIndex: 5
+    margin:verticalScale(50),
+    zIndex:5
   },
   title: {
-    color: "#E69400",
-    fontFamily: "ArialRoundedMTBold",
-    fontSize: 35,
-    marginTop: 100,
-    textAlign: "center",
+    color:"#FF6F61",
+    fontFamily:"ArialRoundedMTBold",
+    fontSize:30,
+    marginTop:verticalScale(120),
+    textAlign:"center",
   },
   titleContainer: {
     borderBottomColor: '#F6F4EB',
@@ -191,13 +197,13 @@ const styles = StyleSheet.create({
     paddingBottom: 5
   },
   containerUserList: {
-    borderWidth: 2,
-    borderColor: "#E69400",
+    borderWidth:2,
+    borderColor:"#FF9F1C",
     borderTopLeftRadius: 25,
     borderTopRightRadius: 25,
-    backgroundColor: '#F5F5F5',
-    marginTop: 8,
-    flex: 1,
+    backgroundColor: '#fff5e8',
+    marginTop:8,
+    height:height - verticalScale(225),
   },
   item: {
     alignItems: 'center',

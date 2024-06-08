@@ -1,12 +1,15 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, ScrollView, Animated, LayoutAnimation, Platform, UIManager, Image } from 'react-native';
+import { useNavigation } from '@react-navigation/native';
 
 
 if (Platform.OS === 'android' && UIManager.setLayoutAnimationEnabledExperimental) {
   UIManager.setLayoutAnimationEnabledExperimental(true);
 }
 
-const FriendRequest = ({ onToggle, initialData = [], receiverId }) => {
+const FriendRequest = ({ onToggle, initialData = [], receiverId, setTrigger, trigger}) => {
+  const navigation = useNavigation();
+
   const [isCollapsed, setIsCollapsed] = useState(true);
   const [data, setData] = useState(initialData);
   const animatedHeight = useRef(new Animated.Value(0)).current;
@@ -43,13 +46,6 @@ const FriendRequest = ({ onToggle, initialData = [], receiverId }) => {
   };
 
   const approveFriend = async (senderId, friendshipId) => {
-
-    console.log("approveFriend",{
-      "senderUserId":senderId,
-      "receiverUserId": receiverId,
-      "friendshipId": friendshipId,
-      "evaluation":true
-  })
         
     const response = await fetch('https://test-socket-ffe88ccac614.herokuapp.com/.netlify/functions/index/friendship/approveRejectFriend', {
         method: 'POST',
@@ -68,8 +64,9 @@ const FriendRequest = ({ onToggle, initialData = [], receiverId }) => {
     const data = await response.json()
 
     if (response.status === 200 && data.friendshipUpdated.status === "confirmed") {
-      console.log("sago",data)
-      setData(prevData => prevData.filter(request => request.friendshipId !== friendshipId));
+      console.log("sagoleraa",data)
+      setTrigger(!trigger)
+      //setData(prevData => prevData.filter(request => request.friendshipId !== friendshipId));
     }  else { 
         AlertDialog("Error",data.error)
     }
@@ -94,7 +91,9 @@ const rejectFriend = async (senderId, friendshipId) => {
     const data = await response.json()
 
     if (response.status === 200 && data === "friendship deleted") {
+        //setTrigger(!trigger)
         setData(prevData => prevData.filter(request => request.friendshipId !== friendshipId));
+        toggleCollapsed()
     }  else { 
         AlertDialog("Error",data.error)
     }
@@ -103,18 +102,19 @@ const rejectFriend = async (senderId, friendshipId) => {
 
   return (
     <View style={styles.container}>
-      <TouchableOpacity onPress={toggleCollapsed} style={styles.header}>
-        <Text style={styles.headerText}>{data.length} requests</Text>
+      <TouchableOpacity onPress={toggleCollapsed} style={{...styles.header, backgroundColor: data.length==0 ? '#e5dcd0': "#FFB366"}}>
+        <Text style={{...styles.headerText, color: data.length==0 ? '#000': "#fff", fontWeight: data.length==0 ? '400': "600",}}>{data.length} requests</Text>
       </TouchableOpacity>
       <Animated.View style={[styles.collapsible, { height: animatedHeight }]}>
         <ScrollView>
           {data.length > 0 && data.map((request, index) => (
             <View key={index} style={styles.request}>
-              <View style={{flexDirection:"row", alignItems:"center"}}>
-              <Image source={{ uri: request.userInfo.preferences.imageUrl }} style={styles.image} resizeMode="cover"/>
+              <TouchableOpacity style={{flexDirection:"row", alignItems:"center"}} 
+                                onPress={()=>{navigation.navigate('OthersProfile', { searcherId:receiverId, searchedId:request.userInfo._id, friendshipId:request.friendshipId})}}>
+                <Image source={{ uri: request.userInfo.preferences.imageUrl }} style={styles.image} resizeMode="cover"/>
 
                 <Text style={{marginLeft:12}}>{request.userInfo.preferences.name}</Text>
-              </View>
+              </TouchableOpacity>
               
               <View style={styles.buttons}>
                 <TouchableOpacity style={styles.buttonApprove} onPress={()=>approveFriend(request.userInfo._id,request.friendshipId)}>
@@ -137,7 +137,6 @@ const styles = StyleSheet.create({
     padding: 10,
   },
   header: {
-    backgroundColor: '#ddd',
     padding: 10,
     borderTopLeftRadius:20,
     borderTopRightRadius:20,
@@ -148,7 +147,6 @@ const styles = StyleSheet.create({
   headerText: {
     fontSize: 18,
     textAlign: 'center',
-
   },
   collapsible: {
     overflow: 'hidden',

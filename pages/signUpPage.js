@@ -3,6 +3,7 @@ import { useState, useEffect, useRef } from 'react';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import LogoSvg from '../svg/logo';
 import { horizontalScale, verticalScale, height } from '../themes/Metrics';
+import GoBackSvg from '../svg/goBackOrange';
 
 const AlertDialog = (title, message) =>
   Alert.alert(title, message, [
@@ -22,6 +23,11 @@ export default function SignUp({ navigation }) {
   const toggleShowPassword = () => {
     setShowPassword(!showPassword);
   };
+
+  function isValidEmail(email) {
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    return emailRegex.test(email);
+  }
 
   const handleKeyboardShow = () => {
     Animated.parallel([
@@ -65,45 +71,57 @@ export default function SignUp({ navigation }) {
   }, []);
 
   async function registerUser() {
-    if (password === repassword) {
-      try {
-        const response = await fetch('https://test-socket-ffe88ccac614.herokuapp.com/.netlify/functions/index/user/register', {
-          method: 'POST',
-          headers: {
-            'Accept': 'application/json',
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({
-            "email": email,
-            "password": password,
-          }),
-        });
-
-        if(response.status == 200) {
-          AlertDialog("Success", "Successfully registered");
-          navigation.replace("Sign");
-        }
-        else if(response.status == 404) {
-          const data = await response.json();
-          AlertDialog("Error", data.message);
-        }
-        else if(response.status == 409) {
-          const data = await response.json();
-          AlertDialog("Error", data.message);
-        }
-        
-      } catch (error) {
-        console.log("error:", error);
-      }
-    } else {
+    if (password !== repassword) {
       AlertDialog("Error", "Password does not match");
+      return;
     }
+    if (password.length < 6) {
+      AlertDialog("Error", "Password must be at least 6 characters");
+      return;
+    }
+    if(!isValidEmail(email)) {
+      AlertDialog("Error", "Invalid email format");
+      return;
+    }
+    try {
+      const response = await fetch('https://test-socket-ffe88ccac614.herokuapp.com/.netlify/functions/index/user/register', {
+        method: 'POST',
+        headers: {
+          'Accept': 'application/json',
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          "email": email,
+          "password": password,
+        }),
+      });
+
+      if(response.status == 200) {
+        AlertDialog("Success", "Successfully registered");
+        navigation.replace("Sign");
+      }
+      else if(response.status == 404) {
+        const data = await response.json();
+        AlertDialog("Error", data.message);
+      }
+      else if(response.status == 409) {
+        const data = await response.json();
+        AlertDialog("Error", data.message);
+      }
+      
+    } catch (error) {
+      console.log("error:", error);
+    }
+    
   }
 
   return (
     <KeyboardAvoidingView style={styles.container} behavior="padding">
       <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
         <View style={styles.inner}>
+          <TouchableOpacity style={{position:"absolute", top:verticalScale(26), left:horizontalScale(4), zIndex:5, paddingVertical:12, paddingHorizontal:16}} onPress={() => navigation.goBack()}>
+              <GoBackSvg />
+          </TouchableOpacity>
           <Animated.View style={{ alignSelf: 'center', marginTop: verticalScale(50), width: logoSize, height: logoSize }}>
             <LogoSvg style={styles.svg} />
           </Animated.View>
@@ -174,6 +192,8 @@ export default function SignUp({ navigation }) {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+    backgroundColor:"#fff5e8",
+
   },
   inner: {
     flex: 1,
@@ -201,6 +221,8 @@ const styles = StyleSheet.create({
     borderRadius: 10,
     borderWidth: 1,
     borderColor: '#FF9F1C',
+    backgroundColor: "#fff"
+
   },
   icon: {
     marginLeft: 10,

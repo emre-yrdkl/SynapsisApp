@@ -8,12 +8,14 @@ import { horizontalScale, moderateScale, verticalScale, width, height } from '..
 import BackgroundLogoSvgSmall from '../svg/backgroundLogoSvgSmall';
 import { useEffect } from 'react';
 import { useAuth } from '../authContext/AuthContext';
+import { CommonActions  } from '@react-navigation/native';
 
 export default function Landing({navigation}) {
 
   const { setLocation } = useAuth();
 
   useEffect( ()=>{
+
     async function getLocation(){
       console.log("sa")
       let { status } = await Location.requestForegroundPermissionsAsync();
@@ -27,6 +29,8 @@ export default function Landing({navigation}) {
       
     }
     getLocation() 
+
+
 
     console.log("width",width, "height",height)
   },[])

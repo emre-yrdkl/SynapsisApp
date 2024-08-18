@@ -2,7 +2,7 @@ import React from 'react';
 import { View, Text, TouchableOpacity, Image, StyleSheet } from 'react-native';
 import * as ImagePicker from 'expo-image-picker';
 import { verticalScale, horizontalScale } from '../../themes/Metrics';
-import { API_KEYS } from './config';
+import { API_KEYS } from '../../config';
 
 const ImagePickerSection = ({ imageUrl, setImageUrl, loading, setLoading, error }) => {
   const api_key = API_KEYS.IMAGE_API_KEY;

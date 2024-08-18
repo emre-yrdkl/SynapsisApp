@@ -1,6 +1,6 @@
 import React from 'react';
 import { TouchableOpacity, View, Text, Image, StyleSheet } from 'react-native';
-import { TimeDisplay } from '../utils/TimeDisplay';
+import { TimeDisplay } from '../../util/TimeDisplay';
 
 const MessageItem = ({ item, onPress }) => (
   <TouchableOpacity style={styles.listItem} onPress={onPress}>

@@ -1,6 +1,6 @@
 import React from 'react';
 import { View, Text, FlatList, TouchableOpacity, Image, StyleSheet } from 'react-native';
-import { verticalScale, width, height } from '../themes/Metrics';
+import { verticalScale, width, height } from '../../themes/Metrics';
 
 const UserList = ({ receiveUserList, user, navigation }) => {
   return (

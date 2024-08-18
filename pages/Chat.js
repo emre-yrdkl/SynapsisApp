@@ -4,7 +4,7 @@ import { useRoute } from '@react-navigation/native';
 import { useAuth } from '../authContext/AuthContext';
 import GoBackSvgWhite from "../svg/goBackWhite";
 import { height } from '../themes/Metrics';
-import { generateUniqueId, formatTime } from '../utils/helpers';
+import { generateUniqueId, formatTime } from '../util/Helpers';
 
 function Chat({navigation}) {
   const { socket, receiveMessage } = useAuth();

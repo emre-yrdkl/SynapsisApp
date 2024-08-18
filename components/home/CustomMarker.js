@@ -3,16 +3,14 @@ import { Marker, Callout } from 'react-native-maps';
 import CustomCalloutNear from './CustomCalloutNear';
 import CustomCalloutFar from './CustomCalloutFar';
 import { height } from '../../themes/Metrics';
-import {
-  cafeNearBig,
-  cafeNearSmall,
-  cafeFarBig,
-  cafeFarSmall,
-  restaurantNearBig,
-  restaurantNearSmall,
-  restaurantFarBig,
-  restaurantFarSmall,
-} from '../assets/markers';
+import cafeNearBig from '../../assets/markers/cafe_near_big.png';
+import cafeNearSmall from '../../assets/markers/cafe_near_small.png';
+import cafeFarBig from '../../assets/markers/cafe_far_big.png';
+import cafeFarSmall from '../../assets/markers/cafe_far_small.png';
+import restaurantNearBig from '../../assets/markers/restaurant_near_big.png';
+import restaurantNearSmall from '../../assets/markers/restaurant_near_small.png';
+import restaurantFarBig from '../../assets/markers/restaurant_far_big.png';
+import restaurantFarSmall from '../../assets/markers/restaurant_far_small.png';
 import { Haversine } from '../../util/Haversine';
 
 const CustomMarker = ({ data, user, checkPlacesExistOrNot, handleMarkerPressCreate, handleMarkerPressJoin }) => {

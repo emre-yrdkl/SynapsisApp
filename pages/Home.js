@@ -8,7 +8,7 @@ import { verticalScale, height } from '../themes/Metrics';
 import LoadingSpinner from '../components/common/LoadingSpinner';
 import CustomMarker from '../components/home/CustomMarker';
 import { Haversine } from '../util/Haversine';
-import { API_KEYS } from './config';
+import { API_KEYS } from '../config';
 
 export default function Home(){
 

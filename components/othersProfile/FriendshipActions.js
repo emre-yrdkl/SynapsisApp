@@ -1,6 +1,6 @@
 import React from 'react';
 import { View, TouchableOpacity, Text, StyleSheet } from 'react-native';
-import { verticalScale } from '../themes/Metrics';
+import { verticalScale } from '../../themes/Metrics';
 
 const FriendshipActions = ({
   friendRequestStatus,

@@ -1,8 +1,8 @@
 import React from 'react';
 import { View, TouchableOpacity, StyleSheet } from 'react-native';
-import NameOtherSvg from '../svg/nameOtherPages';
-import GoBackSvg from '../svg/goBackOrange';
-import { verticalScale, horizontalScale, height } from '../themes/Metrics';
+import NameOtherSvg from '../../svg/nameOtherPages';
+import GoBackSvg from '../../svg/goBackOrange';
+import { verticalScale, horizontalScale, height } from '../../themes/Metrics';
 
 const OthersProfileHeader = ({ navigation }) => {
   return (

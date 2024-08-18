@@ -1,12 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import { StyleSheet, View, ScrollView, Text, TouchableOpacity, Image, Modal, Pressable } from 'react-native';
-import { useAuth } from '../../authContext/AuthContext';
-import Notification from '../common/Notification';
+import { useAuth } from '../authContext/AuthContext';
+import Notification from '../components/common/Notification';
 import ProfileHeader from '../components/profile/ProfileHeader';
 import EditProfileModal from '../components/profile/EditProfileModal';
 import InterestsList from '../components/profile/InterestsList';
-import { verticalScale, horizontalScale, height } from '../../themes/Metrics';
-import NameOtherSvg from '../../svg/nameOtherPages';
+import { verticalScale, horizontalScale, height } from '../themes/Metrics';
+import NameOtherSvg from '../svg/nameOtherPages';
 
 export default function Profile() {
   const { user, receiveMessage, displayedMessages } = useAuth();

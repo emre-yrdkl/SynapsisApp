@@ -4,7 +4,7 @@ import Animated from 'react-native-reanimated';
 import { horizontalScale, verticalScale, width } from '../themes/Metrics';
 import * as Progress from 'react-native-progress';
 import { useAuth } from '../authContext/AuthContext';
-import NameInput from '../components/NameInput';
+import NameInput from '../components/preferences/NameInput';
 import DatePickerSection from '../components/preferences/DatePickerSection';
 import ImagePickerSection from '../components/preferences/ImagePickerSection';
 import BioInput from '../components/preferences/BioInput';

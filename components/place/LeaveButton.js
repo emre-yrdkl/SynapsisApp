@@ -1,7 +1,7 @@
 import React from 'react';
 import { TouchableOpacity, Text, StyleSheet } from 'react-native';
-import GoBackSvgWhiteSmall from '../svg/goBackWhiteSmall';
-import { verticalScale } from '../themes/Metrics';
+import GoBackSvgWhiteSmall from '../../svg/goBackWhiteSmall';
+import { verticalScale } from '../../themes/Metrics';
 
 const LeaveButton = ({ height, leavePlace }) => {
   return (

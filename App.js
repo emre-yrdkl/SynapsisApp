@@ -10,7 +10,7 @@ import Landing from './pages/Landing';
 import AppLoading from 'expo-app-loading';
 import * as Font from 'expo-font';
 import * as SplashScreen from 'expo-splash-screen';
-import Chat from './component/Chat';
+import Chat from './pages/Chat';
 import Preferences from './pages/Preferences';
 import OthersProfile from './pages/OthersProfile';
 import performance from 'react-native-performance';

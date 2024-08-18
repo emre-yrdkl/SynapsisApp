@@ -3,7 +3,7 @@ import { View, Image, StyleSheet } from 'react-native';
 
 const LoadingSpinner = () => (
   <View style={styles.container}>
-    <Image source={require('../assets/gifs/loading.gif')} style={styles.image} />
+    <Image source={require('../../assets/gifs/loading.gif')} style={styles.image} />
   </View>
 );
 

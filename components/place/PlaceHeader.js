@@ -1,8 +1,8 @@
 import React from 'react';
 import { View, Text, StyleSheet } from 'react-native';
-import { verticalScale } from '../themes/Metrics';
-import NameOtherSvg from '../svg/nameOtherPages';
-import Notification from '../components/Notification';
+import { verticalScale } from '../../themes/Metrics';
+import NameOtherSvg from '../../svg/nameOtherPages';
+import Notification from '../common/Notification';
 
 const PlaceHeader = ({ placeName, currentMessage }) => {
   return (

@@ -5,7 +5,7 @@ import DateTimePicker from '@react-native-community/datetimepicker';
 import * as ImagePicker from 'expo-image-picker';
 import axios from 'axios';
 import InterestsList from './InterestsList';
-import { API_KEYS } from './config';
+import { API_KEYS } from '../../config';
 
 const EditProfileModal = ({ userInfo, onClose, onSave }) => {
   const { user } = useAuth();

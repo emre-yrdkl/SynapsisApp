@@ -19,7 +19,6 @@ export default function SignUp({ navigation }) {
   const logoSize = useRef(new Animated.Value(height > 700 ? 200 : 150)).current;
   const marginTop = useRef(new Animated.Value(verticalScale(40))).current;
 
-  // Function to toggle the password visibility state
   const toggleShowPassword = () => {
     setShowPassword(!showPassword);
   };

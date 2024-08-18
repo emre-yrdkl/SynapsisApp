@@ -43,7 +43,6 @@ export const AuthProvider = ({ children }) => {
 
         socket.on("checkPlaceOrNot", async (data) => {
             
-          console.log("placeExistOrNot SOCKET: ", data);
           setPlaceExistOrNot(data);
         });
 
@@ -72,7 +71,6 @@ export const AuthProvider = ({ children }) => {
       
         AsyncStorage.setItem('token', token)//local storage'da token tutuluyor
         setUser(current => ({ ...current, token, ...userInfo }));
-        console.log("loooooo", user)
       };
     
     const setLocation = (latitude, longitude) => {

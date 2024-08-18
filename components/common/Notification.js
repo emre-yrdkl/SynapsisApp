@@ -1,7 +1,7 @@
 import React, { useEffect, useState, useRef } from 'react';
 import { View, Text, Animated, StyleSheet } from 'react-native';
-import { useAuth } from '../authContext/AuthContext';
-import { horizontalScale, moderateScale, verticalScale, width, height } from '../themes/Metrics';
+import { useAuth } from '../../authContext/AuthContext';
+import { horizontalScale, moderateScale, verticalScale, width, height } from '../../themes/Metrics';
 
 const Notification = ({ message }) => {
   const [visible, setVisible] = useState(false);

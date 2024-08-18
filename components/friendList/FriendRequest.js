@@ -64,9 +64,7 @@ const FriendRequest = ({ onToggle, initialData = [], receiverId, setTrigger, tri
     const data = await response.json()
 
     if (response.status === 200 && data.friendshipUpdated.status === "confirmed") {
-      console.log("sagoleraa",data)
       setTrigger(!trigger)
-      //setData(prevData => prevData.filter(request => request.friendshipId !== friendshipId));
     }  else { 
         AlertDialog("Error",data.error)
     }

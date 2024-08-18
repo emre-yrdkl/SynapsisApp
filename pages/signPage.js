@@ -82,7 +82,6 @@ export default function Sign({ navigation }) {
           signIn(result.userToken, result.userInfo);
           setUserId(result.userInfo.userId);
           socket.emit("setup", { userId: result.userInfo.userId });
-          console.log("result.userInfo", result.userInfo);
           const responsePreferences = await fetch('https://test-socket-ffe88ccac614.herokuapp.com/.netlify/functions/index/user/checkPreferences', {
             method: 'POST',
             headers: {
@@ -101,7 +100,6 @@ export default function Sign({ navigation }) {
               index: 0,
               routes: [{ name: 'Dashboard' }],
             })
-            //navigation.replace("Dashboard");
           }
           else {
             navigation.replace("Preferences");
@@ -252,11 +250,5 @@ const styles = StyleSheet.create({
   },
   buttonContainer: {
     marginTop: verticalScale(30),
-  },
-  iconBack: {
-    position: "absolute",
-    marginTop: 40,
-    marginLeft: 10,
-    zIndex: 1
-  },
+  }
 });

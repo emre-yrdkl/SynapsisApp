@@ -10,9 +10,10 @@ import Landing from './pages/Landing';
 import AppLoading from 'expo-app-loading';
 import * as Font from 'expo-font';
 import * as SplashScreen from 'expo-splash-screen';
-import Chat from './items/Chat';
+import Chat from './component/Chat';
 import Preferences from './pages/Preferences';
 import OthersProfile from './pages/OthersProfile';
+import performance from 'react-native-performance';
 
 const Stack = createNativeStackNavigator();
 
@@ -31,6 +32,10 @@ const fetchFonts = async () => {
 export default function App() {
   const [dataLoaded, setDataLoaded] = useState(false);
   const [appIsReady, setAppIsReady] = useState(false);
+
+  useEffect(() => {
+    console.log("performance", performance.metric("bundleSize", 1000, "KB"));
+  }, []);
 
   useEffect(() => {
     async function prepare() {

@@ -1,22 +1,13 @@
 import React, { useEffect, useState, useRef } from "react";
-import { View, Text, TextInput, ScrollView, StyleSheet, TouchableOpacity, KeyboardAvoidingView, Platform, Keyboard  } from "react-native";
+import { View, Text, TextInput, ScrollView, StyleSheet, TouchableOpacity, KeyboardAvoidingView, Platform  } from "react-native";
 import { useRoute } from '@react-navigation/native';
-import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { useAuth } from '../authContext/AuthContext';
 import GoBackSvgWhite from "../svg/goBackWhite";
-import { horizontalScale, moderateScale, verticalScale, width, height } from '../themes/Metrics';
-
-const generateUniqueId = () => {
-  return 'xxxxxxxxyxxx'.replace(/[xy]/g, function(c) {
-    const r = Math.random() * 16 | 0;
-    const v = c === 'x' ? r : (r & 0x3 | 0x8);
-    return v.toString(16);
-  }) + Date.now().toString(16);
-};
-
+import { height } from '../themes/Metrics';
+import { generateUniqueId, formatTime } from '../utils/helpers';
 
 function Chat({navigation}) {
-  const { user, socket, receiveMessage } = useAuth();
+  const { socket, receiveMessage } = useAuth();
   const [currentMessage, setCurrentMessage] = useState("");
   const [messageList, setMessageList] = useState([]);
   const [dmId, setDmId] = useState("")
@@ -24,6 +15,35 @@ function Chat({navigation}) {
   const scrollViewRef = useRef(); // Create a ref using useRef hook
   const route = useRoute();
   const { user1, user2 } = route.params;
+
+  useEffect(()=>{
+    if(receiveMessage.dmId == dmId){
+      setMessageList([...messageList, {description:receiveMessage.content, author:receiveMessage.senderUserId, createdAt:Date.now()}])
+    }
+  },[receiveMessage])
+
+  useEffect(() => {
+    fetch('https://test-socket-ffe88ccac614.herokuapp.com/.netlify/functions/index/dm/getDmMessages', {
+      method: 'POST',
+      headers: {
+        'Accept': 'application/json',
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+          "userId1":user1.userId,            
+          "userId2":user2.senderId,            
+      })
+    }).then(async (res)=>{
+      if(res.status == 200){
+        const result = await res.json()
+        setDmId(result.dm)
+        setMessageList(result.messages)
+      }
+      else{
+        throw res.status
+      }
+    })
+  }, []);
 
   const sendMessage = async () => {
     if (currentMessage !== "") {
@@ -34,7 +54,6 @@ function Chat({navigation}) {
 
       setMessageList([...messageList, {description:currentMessage, author:user1.userId, createdAt:Date.now()}])
 
-      console.log("body: ",user1.userId,currentMessage,dmId)
       fetch('https://test-socket-ffe88ccac614.herokuapp.com/.netlify/functions/index/message/sendMessage', {
       method: 'POST',
       headers: {
@@ -49,7 +68,6 @@ function Chat({navigation}) {
     }).then(async (res)=>{
       if(res.status == 200){
         const result = await res.json()
-        console.log("RESULT dm content: ",result)
       }
       else{
         throw res.status
@@ -58,50 +76,6 @@ function Chat({navigation}) {
       setCurrentMessage("");
     }
   };
-
-  const formatTime = (timestamp) => {
-    const date = new Date(timestamp);
-    const hours = date.getHours().toString().padStart(2, '0');
-    const minutes = date.getMinutes().toString().padStart(2, '0');
-    return `${hours}:${minutes}`;
-  };
-  
-
-  useEffect(()=>{
-    console.log("receiveMessage",receiveMessage)
-    if(receiveMessage.dmId == dmId){
-      setMessageList([...messageList, {description:receiveMessage.content, author:receiveMessage.senderUserId, createdAt:Date.now()}])
-    }
-  },[receiveMessage])
-
-  useEffect(() => {
-    console.log("useeffect",user1,user2)
-    fetch('https://test-socket-ffe88ccac614.herokuapp.com/.netlify/functions/index/dm/getDmMessages', {
-      method: 'POST',
-      headers: {
-        'Accept': 'application/json',
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-          "userId1":user1.userId,            
-          "userId2":user2.senderId,            
-      })
-    }).then(async (res)=>{
-      if(res.status == 200){
-        const result = await res.json()
-        console.log("RESULT dm list: ",result)
-        setDmId(result.dm)
-        setMessageList(result.messages)
-      }
-      else{
-        throw res.status
-      }
-    })
-    
-    /*socket.on("receive_message", (data) => {
-      setMessageList((list) => [...list, data]);
-    });*/
-  }, []);
 
   return (
     <KeyboardAvoidingView
@@ -174,10 +148,6 @@ const styles = StyleSheet.create({
     justifyContent: "flex-start",
     backgroundColor: "#fff5e8",
   },
-  textHeader:{
-    fontSize:20,
-    color:"#000"
-  },
   chatBody: {
     paddingHorizontal: 10,
   },
@@ -236,11 +206,11 @@ const styles = StyleSheet.create({
     color:"#fff"
   },
   headerView:{
-    flexDirection: 'row', // Align items in the same row
-    alignItems: 'center', // Align items vertically centered
-    borderBottomLeftRadius: 15, // Bottom left border radius
-    borderBottomRightRadius: 15, // Bottom right border radius
-    backgroundColor: '#FF9F1C', // Background color
+    flexDirection: 'row',
+    alignItems: 'center', 
+    borderBottomLeftRadius: 15, 
+    borderBottomRightRadius: 15,
+    backgroundColor: '#FF9F1C', 
   },
   iconBack:{
     marginLeft:8,
@@ -248,7 +218,7 @@ const styles = StyleSheet.create({
   },
   headerText:{
     marginLeft:12,
-    fontSize: 20, // Example font size
+    fontSize: 20,
     fontWeight: 'bold',
     color: '#FEFEFE',
   }

@@ -8,21 +8,16 @@ import Ionicon from "@expo/vector-icons/Ionicons"
 import Home from './Home';
 import Profile from './Profile';
 import FriendList from './FriendList';
-import DirectMessage from './DirectMess';
+import DirectMessage from './DirectMessage';
 import Place from './Place';
 import { AntDesign } from '@expo/vector-icons';
 import { FontAwesome5 } from '@expo/vector-icons';
 import { useAuth } from '../authContext/AuthContext';
 
-const AlertDialog = (title,message) =>
-Alert.alert(title, message, [
-  {text: 'OK', onPress: () => console.log('OK Pressed')},
-]);
-
 export default function Dashboard(){
 
     const Tabs = createBottomTabNavigator()
-    const { user, socket, receiveMessage, setCheckInPlace, checkInPlace } = useAuth();
+    const { checkInPlace } = useAuth();
 
 
     return(

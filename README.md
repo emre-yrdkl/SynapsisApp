@@ -39,3 +39,25 @@ Synapsis brings people together by blending the digital and physical worlds, off
    ```bash
    git clone https://github.com/yourusername/synapsis.git
    cd synapsis
+
+
+2. **Install dependencies:**
+
+      ```bash
+   npm install
+
+3. **Run the app:**
+
+    ```bash
+    npx react-native run-android  # For Android
+    npx react-native run-ios      # For iOS
+
+## Usage
+After installing, users can:
+* Sign up and create a personalized profile.
+* Explore nearby social spots (cafes, restaurants, etc.) on a real-time map.
+* Interact with others in virtual spaces tied to real-world locations.
+* Get personalized recommendations based on shared interests and profile similarity.
+
+## Contact
+For any inquiries, reach out to us at: [emreyurdakul24@gmail.com](mailto:emreyurdakul24@gmail.com)

@@ -20,10 +20,6 @@ With Synapsis, users can:
    * **NLP Model Matching**: If interests align, an NLP model refines the matching process by evaluating the semantic similarity of user profiles to ensure highly relevant and personalized connections.
 5. **User-Generated Content**: Share photos, updates, and engage with others in the app’s social ecosystem.
 
-## Why Synapsis?
-
-Synapsis brings people together by blending the digital and physical worlds, offering users the ability to connect with others who share similar interests in familiar social environments. Our unique recommendation system ensures that connections are meaningful and personalized.
-
 ## Installation
 
 ### Prerequisites
@@ -37,7 +33,7 @@ Synapsis brings people together by blending the digital and physical worlds, off
 1. **Clone the repository**:
 
    ```bash
-   git clone https://github.com/yourusername/synapsis.git
+   git clone https://github.com/emre-yrdkl/SynapsisApp.git
    cd synapsis
 
 
